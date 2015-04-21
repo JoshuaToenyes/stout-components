@@ -31,8 +31,10 @@ module.exports = class ProgressButton extends Button
 
 
   spin: ->
+    #@disabled = true
     dom.addClass @_getButton(), 'sc-progress-button-contract'
 
 
   stop: ->
-    dom.removeClass @_getButton(), 'sc-progress-button-contract' 
+    #@disabled = false
+    dom.removeClass @_getButton(), 'sc-progress-button-contract'
