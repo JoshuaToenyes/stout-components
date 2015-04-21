@@ -145,7 +145,7 @@ module.exports = (grunt) ->
 
       jade:
         files: ['src/**/*.jade']
-        tasks: ['jade']
+        tasks: ['jade', 'coffee', 'browserify']
 
 
 

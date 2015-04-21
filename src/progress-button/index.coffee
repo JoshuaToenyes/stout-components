@@ -1,3 +1,4 @@
+dom        = require 'stout/common/utilities/dom'
 template   = require './template'
 Button     = require './../button'
 
@@ -27,3 +28,11 @@ module.exports = class ProgressButton extends Button
   constructor: (label = 'Progress Button') ->
     super(label)
     @template = template
+
+
+  spin: ->
+    dom.addClass @_getButton(), 'sc-progress-button-contract'
+
+
+  stop: ->
+    dom.removeClass @_getButton(), 'sc-progress-button-contract' 

@@ -2,46 +2,82 @@
 
 @import "./../common/variables"
 @import "./../common/exports"
+@import "./../common/classes"
 @import "./../button/button"
 
 +exports('progress-button')
 
-  +keyframes(arc-rotate)
-    to
-      +transform(rotate(360deg) skewX(40deg))
+  $border-width:    0.2em
+  $circle-size:     2 * $sc-button-padding-top-bottom + 1em + 0.5 * $border-width
+  $transition-time: 1s
 
-  $border-width: 0.2em
-  $circle-size: 2 * $sc-button-padding-top-bottom + 1em + 0.5 * $border-width
+  $runner-size:     30deg
+
+  +keyframes(sc-progress-button-arc)
+    to
+      +transform(rotate(360deg) skewX($runner-size))
+
+  +keyframes(sc-progress-button-contract)
+    0%
+      opacity: 1
+    100%
+      opacity: 0.1
 
   .sc-progress-button
     position: relative
 
-  .sc-progress-button-circle
+    &.sc-progress-button-contract
+      background-color: transparent
+      color: transparent
+
+      .sc-progress-button-arc
+        opacity: 1
+        +transition(opacity 2s)
+
+      &:before
+        width: $circle-size
+        border-radius: 50%
+        border-color: $sc-button-bg
+        opacity: 0.1
+        +animation(sc-progress-button-contract 2s)
+        +transform(translateX($circle-size - 2 * $border-width))
+
+    &:before
+      @extend %cover-parent-pseudo
+      box-sizing: border-box
+      border: $border-width solid transparent
+      border-radius: $sc-button-radius
+      +transition(all $sc-transition-time)
+
+
+  .sc-progress-button-container
     position: absolute
+    z-index: -1
     top: 0
     left: 50%
     +transform(translateX(-0.5 * $circle-size))
     width: $circle-size
     height: $circle-size
-    border-radius: 50%
+
 
   .sc-progress-button-arc
     overflow: hidden
     position: absolute
-    top: -$border-width
-    left: -$border-width
-    right: 50%
-    bottom: 50%
+    top: -1%
+    left: -1%
+    right: 51%
+    bottom: 49%
+    opacity: 0
+    +transition(opacity 0s)
     +transform-origin(100% 100%)
-    +transform(rotate(0deg) skewX(40deg))
-    +animation(arc-rotate 800ms linear infinite)
+    +transform(rotate(0deg) skewX($runner-size))
+    +animation(sc-progress-button-arc 700ms 100ms linear infinite)
 
-  .sc-progress-button-arc:before
-    content: ''
-    box-sizing: border-box
-    display: block
-    border: solid $border-width navy
-    width: 200%
-    height: 200%
-    border-radius: 50%
-    +transform(skewX(-40deg))
+    &:before
+      @extend %cover-parent-pseudo
+      box-sizing: border-box
+      border: solid $border-width $sc-button-bg
+      width: 200%
+      height: 200%
+      border-radius: 50%
+      +transform(skewX(-$runner-size))
