@@ -1,0 +1,35 @@
+// @requires bourbon
+
+@import "./../common/variables"
+@import "./../common/exports"
+
++exports('button')
+
+  #{$all-buttons}
+    border: none
+    color: $sc-button-fg
+    background-color: $sc-button-bg
+    border-radius: $sc-button-radius
+    padding: $sc-button-padding
+    -webkit-font-smoothing: antialiased
+    cursor: pointer
+    +transition(background-color 300ms, transform 300ms)
+
+    &[disabled]
+      background-color: $sc-button-disabled-bg !important
+      cursor: default
+
+
+  #{$all-buttons-focus}
+    background-color: $sc-button-focus-bg
+
+
+  #{$all-buttons-hover}
+    background-color: $sc-button-hover-bg
+
+
+  #{$all-buttons-active}
+    &:not([disabled])
+      background-color: $sc-button-active-bg
+      +transform(scale(0.97))
+      //box-shadow: 0 0 3px rgba($sc-button-active-bg, 0.7)

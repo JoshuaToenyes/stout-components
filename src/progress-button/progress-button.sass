@@ -1,0 +1,47 @@
+// @requires bourbon
+
+@import "./../common/variables"
+@import "./../common/exports"
+@import "./../button/button"
+
++exports('progress-button')
+
+  +keyframes(arc-rotate)
+    to
+      +transform(rotate(360deg) skewX(40deg))
+
+  $border-width: 0.2em
+  $circle-size: 2 * $sc-button-padding-top-bottom + 1em + 0.5 * $border-width
+
+  .sc-progress-button
+    position: relative
+
+  .sc-progress-button-circle
+    position: absolute
+    top: 0
+    left: 50%
+    +transform(translateX(-0.5 * $circle-size))
+    width: $circle-size
+    height: $circle-size
+    border-radius: 50%
+
+  .sc-progress-button-arc
+    overflow: hidden
+    position: absolute
+    top: -$border-width
+    left: -$border-width
+    right: 50%
+    bottom: 50%
+    +transform-origin(100% 100%)
+    +transform(rotate(0deg) skewX(40deg))
+    +animation(arc-rotate 800ms linear infinite)
+
+  .sc-progress-button-arc:before
+    content: ''
+    box-sizing: border-box
+    display: block
+    border: solid $border-width navy
+    width: 200%
+    height: 200%
+    border-radius: 50%
+    +transform(skewX(-40deg))

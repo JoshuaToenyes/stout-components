@@ -1,6 +1,7 @@
 .DS_Store
 node_modules/
 dist/
+lib/
 test/**/*.js
 npm-debug.log
 **/*.map
@@ -8,6 +9,9 @@ tmp/
 *.html
 *.js
 *.css
+.sass-cache/
 
 # ----
+/common/
 /button/
+/progress-button/

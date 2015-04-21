@@ -5,8 +5,8 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "stout": "*",
-    "jade-runtime": "1.0.x"
+    "jade-runtime": "1.0.x",
+    "stout": "*"
   },
   "devDependencies": {
     "coffee-script": "1.9.x",
@@ -24,9 +24,8 @@
     "grunt-contrib-connect": "0.9.x",
     "grunt-contrib-watch": "0.6.x",
     "grunt-jade": "0.5.x",
-    "grunt-sass": "0.18.x",
+    "grunt-contrib-sass": "0.8.x",
     "grunt-contrib-copy": "0.7.0",
-    "grunt-contrib-connect": "0.9.x",
     "connect-modrewrite": "*",
     "grunt-open": "0.2.x"
   }

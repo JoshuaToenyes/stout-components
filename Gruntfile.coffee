@@ -1,21 +1,34 @@
 DEMOS =
   JADE:
-    'button': ['src/button/index.jade']
+    'button': ['src/button/demo.jade']
+    'progress-button': ['src/progress-button/demo.jade']
+
+  COFFEE:
+    'button/demo.js': ['src/button/demo.coffee']
+    'progress-button/demo.js': ['src/progress-button/demo.coffee']
 
   BROWSERIFY:
-    'button/demo.js': ['button/index.js']
+    'button/demo.js': ['button/demo.js']
+    'progress-button/demo.js': ['progress-button/demo.js']
 
   SASS:
     'button/demo.css': ['src/button/demo.sass']
+    'progress-button/demo.css': ['src/progress-button/demo.sass']
 
 
 COMPONENTS =
 
   JADE:
     'button': ['src/button/template.jade']
+    'progress-button': ['src/progress-button/template.jade']
 
   COFFEE:
-    'button/index.js': ['src/button/button.coffee']
+    'button/index.js': ['src/button/index.coffee']
+    'progress-button/index.js': ['src/progress-button/index.coffee']
+
+  SASS:
+    'button/demo.sass': ['src/button/demo.sass']
+    'progress-button/demo.sass': ['src/progress-button/demo.sass']
 
 
 
@@ -59,8 +72,17 @@ module.exports = (grunt) ->
 
 
     coffee:
+      common:
+        expand: true
+        flatten: false
+        cwd: 'src/common'
+        src: ['./**/*.coffee']
+        dest: 'common'
+        ext: '.js'
       components:
         files: COMPONENTS.COFFEE
+      demos:
+        files: DEMOS.COFFEE
 
 
     browserify:
@@ -70,8 +92,12 @@ module.exports = (grunt) ->
 
     sass:
       components:
+        options:
+          loadPath: 'lib/'
         files: COMPONENTS.SASS
       demo:
+        options:
+          loadPath: 'lib/'
         files: DEMOS.SASS
 
 
@@ -97,9 +123,14 @@ module.exports = (grunt) ->
       components: COMPONENT_DIRS
 
 
+    copy:
+      components:
+        files: COMPONENTS.SASS
+
+
     open:
       test:
-        path: 'http://localhost:8000/'
+        path: 'http://localhost:8000/index.html'
         app: 'Safari'
 
 
@@ -116,6 +147,7 @@ module.exports = (grunt) ->
     'jade'
     'browserify'
     'sass'
+    'copy'
     ]
 
   grunt.registerTask 'demo', [
