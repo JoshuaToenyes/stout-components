@@ -1,44 +1,79 @@
-DEMOS =
-  JADE:
-    'button': ['src/button/demo.jade']
-    'progress-button': ['src/progress-button/demo.jade']
+_         = require 'lodash'
+fs        = require 'fs'
+path      = require 'path'
+parsePath = require 'parse-filepath'
 
-  COFFEE:
-    'button/demo.js': ['src/button/demo.coffee']
-    'progress-button/demo.js': ['src/progress-button/demo.coffee']
+excludeDirs = ['common']
 
-  BROWSERIFY:
-    'button/demo.js': ['button/demo.js']
-    'progress-button/demo.js': ['progress-button/demo.js']
+demos =
+  jade:       {}
+  coffee:     {}
+  browserify: {}
+  sass:       {}
 
-  SASS:
-    'button/demo.css': ['src/button/demo.sass']
-    'progress-button/demo.css': ['src/progress-button/demo.sass']
+components =
+  jade:   {}
+  coffee: {}
+  sass:   {}
 
+componentsDirs = []
 
-COMPONENTS =
+addFile = (file) ->
+  info = parsePath file
+  # calculate path to where file should go
+  destDir = path.relative __dirname, info.dirname.replace('src/', '')
+  destName = path.join(destDir, info.name)
 
-  JADE:
-    'button': ['src/button/template.jade']
-    'progress-button': ['src/progress-button/template.jade']
+  if destDir not in componentsDirs then componentsDirs.push destDir
 
-  COFFEE:
-    'button/index.js': ['src/button/index.coffee']
-    'progress-button/index.js': ['src/progress-button/index.coffee']
+  # Handle demo files a little differently...
+  if info.name is 'demo'
+    switch info.extname
+      when '.coffee'
+        destName = destName + '.js'
+        demos.coffee[destName] = [file]
+        demos.browserify[destName] = [destName]
+      when '.jade'
+        demos.jade[destDir] = [file]
+      when '.sass'
+        demos.sass[destName + '.css'] = [file]
+      else
+        throw new Error "Sorry! I don't know how to handles #{file}!"
 
-  SASS:
-    'button/demo.sass': ['src/button/demo.sass']
-    'progress-button/demo.sass': ['src/progress-button/demo.sass']
+  else
+    switch info.extname
+      when '.coffee'
+        components.coffee[destName + '.js'] = [file]
+      when '.jade'
+        components.jade[destDir] = [file]
+      when '.sass'
+        components.sass[destName + '.css'] = [file]
+      else
+        throw new Error "Sorry! I don't know how to handles #{file}!"
 
+parseSources = (dir) ->
+  _.each fs.readdirSync(dir), (item) ->
+    item = path.join(dir, item)
+    stat = fs.statSync item
+    if stat.isDirectory()
+      parseSources(dir)
+    else
+      addFile item
 
+# Read each directory in `src`, and parse it's contents for each type of
+# item to compile, copy, etc.
+_.each fs.readdirSync('src'), (item) ->
+  fullPath = path.join(__dirname, 'src/', item)
+  stat = fs.statSync fullPath
+  if stat.isDirectory() and item not in excludeDirs
+    parseSources(fullPath)
 
-
-COMPONENT_DIRS = ['button']
 
 
 module.exports = (grunt) ->
 
   config =
+
 
     pkg: (grunt.file.readJSON('package.json'))
 
@@ -47,7 +82,7 @@ module.exports = (grunt) ->
       demos:
         options:
           client: false
-        files: DEMOS.JADE
+        files: demos.jade
       index:
         options:
           client: false
@@ -62,7 +97,7 @@ module.exports = (grunt) ->
             node: true
             dependencies: 'jade-runtime'
           runtime: false
-        files: COMPONENTS.JADE
+        files: components.jade
 
 
     coffeelint:
@@ -80,36 +115,38 @@ module.exports = (grunt) ->
         dest: 'common'
         ext: '.js'
       components:
-        files: COMPONENTS.COFFEE
+        files: components.coffee
       demos:
-        files: DEMOS.COFFEE
+        files: demos.coffee
 
 
     browserify:
       app:
-        files: DEMOS.BROWSERIFY
+        files: demos.browserify
 
 
     sass:
-      components:
-        options:
-          loadPath: 'lib/'
-        files: COMPONENTS.SASS
       demo:
         options:
           loadPath: 'lib/'
-        files: DEMOS.SASS
+        files: demos.sass
 
 
-
+    # Watch task....
     watch:
-      compile:
-        files: ['src/**/*.coffee', 'src/**/*.jade', 'src/**/*.sass']
-        tasks: ['compile']
-        configFiles:
-          files: ['Gruntfile.coffee']
-          options:
-            reload: true
+
+      sass:
+        files: ['src/**/*.sass']
+        tasks: ['sass']
+
+      coffee:
+        files: ['src/**/*.coffee']
+        tasks: ['coffeelint', 'coffee', 'browserify']
+
+      jade:
+        files: ['src/**/*.jade']
+        tasks: ['jade']
+
 
 
     connect:
@@ -120,12 +157,13 @@ module.exports = (grunt) ->
 
 
     clean:
-      components: COMPONENT_DIRS
+      common: ['common']
+      components: componentsDirs
 
 
     copy:
       components:
-        files: COMPONENTS.SASS
+        files: components.sass
 
 
     open:

@@ -5,11 +5,13 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
+    "lodash": "3.7.x",
     "jade-runtime": "1.0.x",
     "stout": "*"
   },
   "devDependencies": {
     "coffee-script": "1.9.x",
+    "parse-filepath": "0.5.x",
     "grunt": "0.4.x",
     "grunt-coffee-redux": "0.2.x",
     "browserify": "9.0.x",
