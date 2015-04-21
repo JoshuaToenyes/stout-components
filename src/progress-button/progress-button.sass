@@ -23,7 +23,7 @@
 
   .sc-progress-button
     position: relative
-    +transition(background-color 3 * $sc-transition-time)
+    +transition(background-color 3 * $sc-transition-time ease-in)
 
     &:before
       @extend %cover-parent-pseudo
@@ -47,7 +47,7 @@
         opacity: 0
 
       .sc-progress-button-arc
-        +transition(opacity 2s $sc-transition-time)
+        +transition(opacity 2s 0.9 * $sc-transition-time)
         opacity: 1
 
 
