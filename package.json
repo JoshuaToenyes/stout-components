@@ -6,6 +6,7 @@
   "version": "0.0.0",
   "dependencies": {
     "lodash": "3.7.x",
+    "shifty": "1.4.x",
     "jade-runtime": "1.0.x",
     "stout": "*"
   },

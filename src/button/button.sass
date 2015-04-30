@@ -2,34 +2,47 @@
 
 @import "./../common/variables"
 @import "./../common/exports"
+@import "./../common/classes"
 
 +exports('button')
 
   #{$all-buttons}
+    @extend %fillable
+    -webkit-font-smoothing: antialiased
     border: none
-    color: $sc-button-fg
-    background-color: $sc-button-bg
     border-radius: $sc-button-radius
     padding: $sc-button-padding
-    -webkit-font-smoothing: antialiased
     cursor: pointer
-    +transition(background-color $sc-transition-time, transform $sc-transition-time)
+    position: relative
+    overflow: hidden
+    +transition(transform $sc-transition-time, color $sc-transition-time)
 
-    &[disabled]
-      background-color: $sc-button-disabled-bg !important
-      cursor: default
+    &.sc-fill
+      color: $sc-button-fg
+
+      &::after
+        background-color: $sc-button-bg
+
+      &[disabled]
+        cursor: default
+
+        &::after
+          background-color: $sc-button-disabled-bg !important
 
 
   #{$all-buttons-focus}
-    background-color: $sc-button-focus-bg
+    &.sc-fill::after
+      background-color: $sc-button-focus-bg
 
 
   #{$all-buttons-hover}
-    background-color: $sc-button-hover-bg
+    &.sc-fill::after
+      background-color: $sc-button-hover-bg
 
 
   #{$all-buttons-active}
     &:not([disabled])
-      background-color: $sc-button-active-bg
       +transform(scale(0.97))
-      //box-shadow: 0 0 3px rgba($sc-button-active-bg, 0.7)
+
+      &.sc-fill::after
+        background-color: $sc-button-active-bg

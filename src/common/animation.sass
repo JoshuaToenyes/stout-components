@@ -1,0 +1,13 @@
++keyframes(sc-anim-spin)
+  to
+    +transform(rotate(360deg))
+
+.sc-anim-spin
+  +animation-name(sc-anim-spin)
+  +animation-duration($sc-transition-time-very-slow)
+  +animation-iteration-count(infinite)
+
+.sc-anim-stop-spin
+  +animation-name(sc-anim-spin)
+  +animation-duration($sc-transition-time-very-slow)
+  +animation-iteration-count(1)

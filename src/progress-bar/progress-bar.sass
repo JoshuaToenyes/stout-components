@@ -1,0 +1,48 @@
+// @requires bourbon
+
+@import './../common/variables'
+@import './../common/exports'
+@import './../common/classes'
+@import './../common/animation'
+
++exports('progress-bar')
+
+  $size: 3em
+
+  .sc-progress-bar
+    position: relative
+    display: inline-block
+    height: $size
+    width: $size
+    text-align: center
+    line-height: $size
+    +transition(opacity $sc-transition-time-slow, transform $sc-transition-time-slow, -webkit-transform $sc-transition-time-slow)
+
+    &.sc-hidden
+      opacity: 0
+
+    .sc-progress-container
+      position: relative
+      font-weight: 200
+      z-index: 10
+
+    .sc-progress-symbol
+      font-weight: 100
+      font-size: modular-scale(-1)
+
+    svg
+      position: absolute
+      overflow: visible
+      z-index: 0
+      display: block
+      height: 90%
+      width: 90%
+      left: 5%
+      top: 5%
+
+    path
+      stroke-width: 4%
+      fill: #fafafa
+      stroke: $sc-color-interactive-bg
+      +transition-property(all)
+      +transition-timing-function($ease-out-quart)

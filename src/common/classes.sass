@@ -6,6 +6,37 @@
   left: 0
   top: 0
 
+
 %cover-parent-pseudo
   @extend %cover-parent
   content: ''
+
+// Defines a "fillable" item which has a fill color as it's ::after pseudo
+// element. When the `.sc-fill` class is attached to the element, it is filled
+// with the background color, but when the class is removed it fades-out
+// at the object's center.
+%fillable
+  position: relative
+  background-color: transparent
+  color: transparent
+  +transition(color $sc-transition-time-slow ease-in-out)
+
+  &::after
+    @extend %cover-parent-pseudo
+    background-color: transparent
+    z-index: -1
+    height: 90%
+    width: 90%
+    left: 5%
+    top: 5%
+    border-radius: 5%
+    +transition(all $sc-transition-time-slow ease-in-out)
+
+  &.sc-fill::after
+    color: $sc-color-fg
+    background-color: $sc-button-bg
+    height: 100%
+    width: 100%
+    left: 0
+    top: 0
+    border-radius: 0

@@ -1,3 +1,4 @@
+dom        = require 'stout/common/utilities/dom'
 template   = require './template'
 Hoverable  = require '../common/Hoverable'
 Model      = require 'stout/common/model/Model'
@@ -45,9 +46,35 @@ module.exports = class Button extends Hoverable
 
   @property 'enabled',
     set: (enabled) ->
-      @disabled = !enabled
+      @disabled = not enabled
     get: ->
-      !@disabled
+      not @disabled
+
+
+  ##
+  # This property is `true` if the button is currently hidden, or unfilled.
+  #
+  # @property {boolean} hidden
+  # @public
+
+  @property 'hidden',
+    set: (hidden) ->
+      @visible = not hidden
+    get: ->
+      not @visible
+
+
+  ##
+  # This property is `true` if the button is currently visible, or filled.
+  #
+  # @property {boolean} visible
+  # @public
+
+  @property 'visible',
+    set: (visible) ->
+      if visible then @show() else @hide()
+    get: ->
+      dom.hasClass @_getButton(), 'sc-fill'
 
 
   ##
@@ -62,7 +89,64 @@ module.exports = class Button extends Hoverable
 
 
   ##
-  # Returns reference to the button DOM node.
+  # Fills the button with the background color, essentially making it visible.
+  #
+  # @method _fill
+  # @protected
+
+  _fill: ->
+    if @_getButton() then dom.addClass @_getButton(), 'sc-fill'
+
+
+  ##
+  # Shows the button by filling the background.
+  #
+  # @method show
+  # @public
+
+  show: @prototype._fill
+
+
+  ##
+  # Removes the fill from the button background, essentially hiding the button.
+  #
+  # @method _unfill
+  # @protected
+
+  _unfill: ->
+    if @_getButton() then dom.removeClass @_getButton(), 'sc-fill'
+
+
+  ##
+  # Hides the button.
+  #
+  # @method hide
+  # @public
+
+  hide: @prototype._unfill
+
+
+  ##
+  # Enables the button.
+  #
+  # @method enable
+  # @public
+
+  enable: ->
+    @enabled = true
+
+
+  ##
+  # Disables the button
+  #
+  # @method disable
+  # @public
+
+  disable: ->
+    @disabled = true
+
+  ##
+  # Returns reference to the `button` DOM node.
   #
   # @method _getButton
   # @protected
