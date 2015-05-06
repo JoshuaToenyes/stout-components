@@ -2,6 +2,8 @@ dom        = require 'stout/common/utilities/dom'
 err        = require 'stout/common/err'
 Component  = require './../common/Component'
 Tweenable  = require 'shifty'
+transform  = require './../common/transform'
+
 
 # Progress bar templates.
 templates =
@@ -23,10 +25,7 @@ module.exports = class ProgressBar extends Component
   @property 'label',
 
     ##
-    # Sets the label of the progress bar. This property assumes the value of
-    # the entire label is passed, including the symbol if configured. The
-    # symbol is then extract and placed in the correct HTML element within the
-    # progress bar.
+    # Sets the label of the progress bar.
     #
     # @param {number} p - Progress value between 0 and 1.
     #
@@ -35,14 +34,7 @@ module.exports = class ProgressBar extends Component
     # @setter
 
     set: (t) ->
-      if not t then return
-      if @model.symbol
-        s = t.slice -@model.symbol.length
-        t = t.slice 0, -@model.symbol.length
-      else
-        s = ''
-      @select('.sc-progress')?.textContent = t
-      @select('.sc-progress-symbol')?.textContent = s
+      @select('.sc-progress-label')?.textContent = t
 
 
     ##
@@ -51,22 +43,7 @@ module.exports = class ProgressBar extends Component
     # @getter
 
     get: ->
-      @select('.sc-progress')?.textContent +
-        @select('.sc-progress-symbol')?.textContent
-
-
-  ##
-  # The button progress, a floating point number between `0` and `1`.
-  #
-  # @todo Should throw a ValueErr if passed a number outside of the range [0, 1]
-  #
-  # @property {number} progress
-  # @public
-
-  @property 'progress',
-    set: (p) ->
-      @_setProgress(p)
-      p
+      @select('.sc-progress-label')?.textContent
 
 
   ##
@@ -100,40 +77,46 @@ module.exports = class ProgressBar extends Component
   ##
   # ProgressBar constructor.
   #
-  # @param {Object} [opts={}] - Options.
+  # @param {Object} [_opts={}] - Options.
   #
-  # @param {number} [opts.init=0] - Initial progress between 0 and 1.
+  # @param {string} [_opts.type='circle'] - Progress bar type.
   #
-  # @param {string} [opts.type='circle'] - Progress bar type.
-  #
-  # @param {boolean} [opts.numeric=false] - Show numeric progress, or not.
-  #
-  # @param {boolean} [opts.symbol='%'] - The percentage symbol to use. (Set to
-  # the empty string for no symbol.)
+  # @param {boolean} [_opts.numeric=false] - Show numeric progress, or not.
   #
   # @todo This should throw a ValueErr if passed an invalid progress bar type.
   #
   # @constructor
 
-  constructor: (opts={}) ->
-    opts.init    or= 0
-    opts.type    or= 'circle'
-    opts.time    or= 4000
-    opts.numeric or= false
-    opts.symbol  ?= if opts.numeric then '%' else ''
-    tmpl = templates[opts.type]
+  constructor: (model, @_opts = {}) ->
+    @_opts.type    or= 'circle'
+    @_opts.time    or= 4000
+    @_opts.numeric or= true
+    tmpl = templates[@_opts.type]
     @_labelTween = new Tweenable
-    super(tmpl, opts, {renderOnChange: false})
+    @_rotationTween = new Tweenable
+    @_stopRotation = false
+    super(tmpl, model, {renderOnChange: false})
+    @model.on 'change:progress', (e) =>
+      @_setProgress(e.data.old, e.data.value)
+
 
 
   spin: ->
-    dom.addClass @select('svg'), 'sc-anim-spin'
-    dom.removeClass @select('svg'), 'sc-anim-stop-spin'
+    x = transform(@select('svg'))
+    @_stopRotation = false
+    @_rotationTween.tween {
+      from:       {turn: 0}
+      to:         {turn: 1}
+      duration:   800
+      easing:     'easeInOutSine'
+      step:       (s) => x.rotate(s.turn + 'turn')
+      finish:     => @spin() unless @_stopRotation
+    }
 
 
   stop: ->
-    dom.addClass @select('svg'), 'sc-anim-stop-spin'
-    dom.removeClass @select('svg'), 'sc-anim-spin'
+    @_stopRotation = true
+    #@_rotationTween.stop true
 
 
   ##
@@ -167,8 +150,7 @@ module.exports = class ProgressBar extends Component
 
   render: ->
     super()
-    @progress = 0
-    @progress = @model.init
+    @_setProgress(0, @model.progress)
 
 
   ##
@@ -190,16 +172,15 @@ module.exports = class ProgressBar extends Component
   # @method _tweenLabel
   # @private
 
-  _tweenLabel: (p, t) ->
-    if not @model.numeric then return
+  _tweenLabel: (from, to, t) ->
+    if not @_opts.numeric then return
     @_labelTween.stop()
-    current = @_labelTween.get()?.progress or @_progress or 0
     @_labelTween.tween {
-      from:       {progress: current}
-      to:         {progress: p}
+      from:       {progress: from}
+      to:         {progress: to}
       duration:   t
       easing:     'easeOutQuart'
-      step:       (v) => @label = Math.floor(v.progress * 100) + @model.symbol
+      step:       (s) => @label = Math.floor(s.progress * 100)
     }
 
 
@@ -212,24 +193,16 @@ module.exports = class ProgressBar extends Component
   # @method _setProgress
   # @protected
 
-  _setProgress: (p) ->
+  _setProgress: (from, to) ->
     if not @rendered then return
-
-    # Stop if the progress is the same (or the animation to it is already in
-    # progress).
-    if p is @_progress then return
 
     # Calculate the transition time. The `Math.max()` call ensures we have a
     # minimum transition time of 1/5 of the full time. This prevents super-fast
     # jump transitions when moving a relatively small amount.
-    t = Math.max(0.2, Math.abs(@_progress - p)) * @model.time
+    t = Math.max(0.2, Math.abs(from - to)) * @_opts.time
 
     # Tween the percentage label.
-    @_tweenLabel p, t
-
-    # Set the progress (this must be done after the call to `_tweenLabel()`
-    # since it depends on the current progress value).
-    @_progress = p
+    @_tweenLabel from, to, t
 
     # Grab reference to the SVG's path.
     path = @_getPath()
@@ -251,4 +224,4 @@ module.exports = class ProgressBar extends Component
     # increments of 0.01 (or 1%). This prevents the bar showing some progress
     # (like at 0.5%) while the label still indicates 0%... or the bar being
     # visually full (like at 99.99%) while the label indicates only 99%.
-    path.style.strokeDashoffset = Math.ceil(100 - p * 100) / 100 * length
+    path.style.strokeDashoffset = Math.ceil(100 - to * 100) / 100 * length
