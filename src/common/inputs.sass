@@ -1,0 +1,48 @@
+// @requires bourbon
+
+@import "./../common/variables"
+@import "./../common/exports"
+@import "./../common/classes"
+
++exports('inputs')
+
+  label
+    +transition(opacity $sc-transition-time-slow, transform $sc-transition-time, -webkit-transform $sc-transition-time, color $sc-transition-time)
+
+    &.sc-hidden
+      opacity: 0
+
+  #{$all-text-inputs}
+    -webkit-font-smoothing: antialiased
+    font-size: 1em
+    line-height: 1.3em
+    border-radius: $sc-input-radius
+    padding: $sc-input-padding
+    position: relative
+    //background-color: $sc-color-bg
+    //background-color: lighten($sc-color-bg, 4%)
+    +transition(opacity $sc-transition-time-slow, transform $sc-transition-time, -webkit-transform $sc-transition-time, border-color $sc-transition-time, background-color $sc-transition-time)
+    border: 1px solid darken($sc-color-bg, 20%)
+
+    &.sc-hidden
+      opacity: 0
+
+  #{$all-text-inputs-focus}
+    outline: none
+    border-color: darken($sc-color-bg, 45%)
+    //background-color: lighten($sc-color-bg, 7%)
+    +transform(scale(1.02))
+    box-shadow: 0 0 0.15em rgba(black, 0.15)
+
+
+
+  #{$all-text-inputs-hover}
+
+
+
+  #{$all-text-inputs-active}
+    // &:not([disabled])
+    //   +transform(scale(0.97))
+    //
+    //   &.sc-fill::after
+    //     background-color: $sc-input-active-bg

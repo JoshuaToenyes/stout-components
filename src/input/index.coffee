@@ -1,8 +1,11 @@
 _          = require 'lodash'
 dom        = require 'stout/common/utilities/dom'
-template   = require './template'
 Hoverable  = require '../common/Hoverable'
 
+# Input templates.
+templates =
+  'with-label':     require './with-label'
+  'without-label':  require './without-label'
 
 ##
 # Simple text input.
@@ -86,12 +89,27 @@ module.exports = class Input extends Hoverable
     set: (visible) ->
       if visible then @show() else @hide()
     get: ->
-      dom.hasClass @_getButton(), 'sc-fill'
+      not dom.hasClass @_getOuterElement(), 'sc-hidden'
 
 
-  constructor: (placeholder = '') ->
-    super template,
-      {placeholder: placeholder},
+
+
+
+  constructor: (opts = {}) ->
+    opts.label       or= ''
+    opts.placeholder or= ''
+    opts.template    or= 'with-label'
+    opts.name        or= ''
+    opts.id          or= ''
+
+    model =
+      placeholder:  opts.placeholder
+      label:        opts.label
+      name:         opts.name
+      id:           opts.id
+
+    super templates[opts.template],
+      model
       {renderOnChange: false},
       @_getInput
 
@@ -106,6 +124,16 @@ module.exports = class Input extends Hoverable
 
   _getInput: ->
     @select('input')
+
+
+  _getLabel: ->
+    @select('label')
+
+
+  _getOuterElement: ->
+    label = @select 'label'
+    if label then label else @select 'input'
+
 
 
   ##
@@ -126,3 +154,12 @@ module.exports = class Input extends Hoverable
 
   disable: ->
     @disabled = true
+
+
+  show: ->
+    if @rendered
+      dom.removeClass @_getOuterElement(), 'sc-hidden'
+
+  hide: ->
+    if @rendered
+      dom.addClass @_getOuterElement(), 'sc-hidden'

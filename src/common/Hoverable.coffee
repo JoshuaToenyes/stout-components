@@ -44,3 +44,5 @@ module.exports = class Hoverable extends Component
         self._state = STATE.DEFAULT
         self.fire 'leave', e
       , 10
+
+    @el

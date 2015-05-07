@@ -45,7 +45,8 @@ addFile = (file) ->
       when '.coffee'
         components.coffee[destName + '.js'] = [file]
       when '.jade'
-        components.jade[destDir] = [file]
+        components.jade[destDir] ?= []
+        components.jade[destDir].push file
       when '.sass'
         components.sass[destName + '.css'] = [file]
       else
