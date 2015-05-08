@@ -102,6 +102,10 @@ module.exports = class Input extends Hoverable
     opts.name        or= ''
     opts.id          or= ''
 
+    @_mask = opts.mask
+
+    @_lastKey = null
+
     model =
       placeholder:  opts.placeholder
       label:        opts.label
@@ -135,6 +139,49 @@ module.exports = class Input extends Hoverable
     if label then label else @select 'input'
 
 
+  render: ->
+    super()
+    
+    @_getInput().addEventListener 'keydown', (e) =>
+      @_lastKey = e.which || e.keyCode || e.charCode
+
+    @_getInput().addEventListener 'input', (e) =>
+      if @_mask and @_lastKey isnt 8
+        masked = @_renderMask(e.target.value)
+        e.target.value = masked
+
+    @el
+
+
+  _renderMask: (value) ->
+    value = value.replace /[^\d]/g, ''
+    maskedValue = ''
+    i = j = 0
+
+    # If the value is zero-length, then make the input blank.
+    if value.length is 0 then return ''
+
+    loop
+
+      # If this character should be a value, place the value.
+      if @_mask[i].match /\d/
+        maskedValue += value[j]
+        j++
+        i++
+
+      # Otherwise, place the masking character.
+      else
+        maskedValue += @_mask[i]
+        i++
+
+      # If we've reached the end of the mask, break.
+      if i >= @_mask.length then break
+
+      # If the next character should be user-supplied, and there are no more
+      # user supplied characters, then break
+      if @_mask[i].match(/\d/) and j >= value.length then break
+
+    return maskedValue
 
   ##
   # Enables the input.
