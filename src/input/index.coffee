@@ -106,6 +106,16 @@ module.exports = class Input extends Hoverable
 
     @_lastKey = null
 
+    # Bound model.
+    @_model = null
+
+    # Bound field of model.
+    @_field = null
+
+    # Update prevention flag, used when updating the model and a change on the
+    # bound model should not trigger an update in the view.
+    @_preventModelUpdate = false
+
     model =
       placeholder:  opts.placeholder
       label:        opts.label
@@ -130,27 +140,94 @@ module.exports = class Input extends Hoverable
     @select('input')
 
 
+  ##
+  # Returns the label element associated with the input if there is one.
+  #
+  # @returns {HTMLElement} lable DOM node.
+  #
+  # @method _getLabel
+  # @private
+
   _getLabel: ->
     @select('label')
 
+
+  ##
+  # Returns the outer HTMLElement object, label if there is one, or the input
+  # element itself.
+  #
+  # @returns {HTMLElement} Outer label or input element.
+  #
+  # @method _getOuterElement
+  # @private
 
   _getOuterElement: ->
     label = @select 'label'
     if label then label else @select 'input'
 
 
+  ##
+  # Renders the input and attaches event listeners to DOM elements.
+  #
+  # @returns {HTMLElement} Reference to container DOM element.
+  #
+  # @param render
+  # @public
+
   render: ->
     super()
-    
+
     @_getInput().addEventListener 'keydown', (e) =>
       @_lastKey = e.which || e.keyCode || e.charCode
 
     @_getInput().addEventListener 'input', (e) =>
+      value = e.target.value
       if @_mask and @_lastKey isnt 8
-        masked = @_renderMask(e.target.value)
-        e.target.value = masked
+        value = @_renderMask value
+      @_preventModelUpdate = true
+      @_updateView value
+      @_updateModel value
 
     @el
+
+  ##
+  # Updates the value of the input in the view.
+  #
+  # @method _updateView
+  # @protected
+
+  _updateView: (value) ->
+    @_getInput().value = value
+
+
+  ##
+  # Updates the value in the bound model.
+  #
+  # @method _updateModel
+  # @protected
+
+  _updateModel: (value) ->
+    if @_model then @_model[@_field] = value
+
+
+  ##
+  # Binds this input to the passed model and field. When the model's field
+  # changes the input will be updated to reflect the change.
+  #
+  # @param {Model} _model - The model to bind to.
+  #
+  # @param {string} _field - The field on the model to bind to.
+  #
+  # @method bind
+  # @public
+
+  bind: (@_model, @_field) ->
+    @_model.on "change:#{@_field}", (e) =>
+      if not @_preventModelUpdate
+        value = e.data.value.toString()
+        if @_mask then value = @_renderMask value
+        @_updateView value.toString()
+      @_preventModelUpdate = false
 
 
   _renderMask: (value) ->
@@ -183,6 +260,7 @@ module.exports = class Input extends Hoverable
 
     return maskedValue
 
+
   ##
   # Enables the input.
   #
@@ -203,10 +281,21 @@ module.exports = class Input extends Hoverable
     @disabled = true
 
 
+  ##
+  # Shows an input by fading it in.
+  #
+  # @method show
+  # @public
+
   show: ->
-    if @rendered
-      dom.removeClass @_getOuterElement(), 'sc-hidden'
+    if @rendered then dom.removeClass @_getOuterElement(), 'sc-hidden'
+
+
+  ##
+  # Hides the input by fading it from view.
+  #
+  # @method hide
+  # @public
 
   hide: ->
-    if @rendered
-      dom.addClass @_getOuterElement(), 'sc-hidden'
+    if @rendered then dom.addClass @_getOuterElement(), 'sc-hidden'
