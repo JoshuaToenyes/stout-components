@@ -1,6 +1,6 @@
-_          = require 'lodash'
-dom        = require 'stout/common/utilities/dom'
-Hoverable  = require '../common/Hoverable'
+_           = require 'lodash'
+dom         = require 'stout/common/utilities/dom'
+Interactive = require '../common/Interactive'
 
 # Input templates.
 templates =
@@ -10,90 +10,7 @@ templates =
 ##
 # Simple text input.
 #
-module.exports = class Input extends Hoverable
-
-  ##
-  # Input disabled property. When disabled, the user cannot enter text into the
-  # input element.
-  #
-  # @property {boolean} disabled
-  # @public
-
-  @property 'disabled',
-
-    ##
-    # If true, disables the input.
-    #
-    # @setter
-
-    set: (disable) ->
-      if disable
-        @_getInput()?.setAttribute 'disabled', 'true'
-      else
-        @_getInput()?.removeAttribute 'disabled'
-
-    ##
-    # Returns `true` if the input is currently disabled.
-    #
-    # @getter
-
-    get: ->
-      return @_getInput()?.hasAttribute 'disabled'
-
-
-  ##
-  # If the input is currently enabled (the inverse of disabled).
-  #
-  # @property {boolean} enabled
-  # @public
-
-  @property 'enabled',
-
-    ##
-    # If true, enables the input.
-    #
-    # @setter
-
-    set: (enabled) ->
-      @disabled = not enabled
-
-    ##
-    # Returns `true` if the input is currently enabled.
-    #
-    # @getter
-
-    get: ->
-      not @disabled
-
-
-  ##
-  # This property is `true` if the input is currently hidden, or unfilled.
-  #
-  # @property {boolean} hidden
-  # @public
-
-  @property 'hidden',
-    set: (hidden) ->
-      @visible = not hidden
-    get: ->
-      not @visible
-
-
-  ##
-  # This property is `true` if the button is currently visible, or filled.
-  #
-  # @property {boolean} visible
-  # @public
-
-  @property 'visible',
-    set: (visible) ->
-      if visible then @show() else @hide()
-    get: ->
-      not dom.hasClass @_getOuterElement(), 'sc-hidden'
-
-
-
-
+module.exports = class Input extends Interactive
 
   constructor: (opts = {}) ->
     opts.label       or= ''
@@ -165,6 +82,8 @@ module.exports = class Input extends Hoverable
     label = @select 'label'
     if label then label else @select 'input'
 
+
+  _getHoverTarget: @.prototype._getInput
 
   ##
   # Renders the input and attaches event listeners to DOM elements.
@@ -259,43 +178,3 @@ module.exports = class Input extends Hoverable
       if @_mask[i].match(/\d/) and j >= value.length then break
 
     return maskedValue
-
-
-  ##
-  # Enables the input.
-  #
-  # @method enable
-  # @public
-
-  enable: ->
-    @enabled = true
-
-
-  ##
-  # Disables the input.
-  #
-  # @method disable
-  # @public
-
-  disable: ->
-    @disabled = true
-
-
-  ##
-  # Shows an input by fading it in.
-  #
-  # @method show
-  # @public
-
-  show: ->
-    if @rendered then dom.removeClass @_getOuterElement(), 'sc-hidden'
-
-
-  ##
-  # Hides the input by fading it from view.
-  #
-  # @method hide
-  # @public
-
-  hide: ->
-    if @rendered then dom.addClass @_getOuterElement(), 'sc-hidden'

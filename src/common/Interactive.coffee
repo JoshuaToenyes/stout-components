@@ -1,7 +1,5 @@
 dom        = require 'stout/common/utilities/dom'
-template   = require './template'
-Hoverable  = require '../common/Hoverable'
-Model      = require 'stout/common/model/Model'
+Component  = require './Component'
 
 STATE =
   DEFAULT: 1  # Normal static state.

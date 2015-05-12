@@ -1,3 +1,14 @@
+// Class added to the root element of every component.
+.sc-component
+  +transition(opacity $sc-transition-time-slow)
+
+
+// Class added element or parts of elements that should be hidden from view,
+// but still occupy their height and width on the page.
+.sc-hidden
+  opacity: 0
+
+
 %cover-parent
   position: absolute
   display: block
@@ -10,6 +21,7 @@
 %cover-parent-pseudo
   @extend %cover-parent
   content: ''
+
 
 // Defines a "fillable" item which has a fill color as it's ::after pseudo
 // element. When the `.sc-fill` class is attached to the element, it is filled

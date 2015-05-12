@@ -112,6 +112,20 @@ module.exports = class Component extends ClientView
 
 
   ##
+  # Renders this component and adds the `sc-component` class to the root
+  # element.
+  #
+  # @returns {HTMLElement} The root component element.
+  #
+  # @method render
+  # @public
+  render: ->
+    super()
+    dom.addClass @el, 'sc-component'
+    @el
+
+
+  ##
   # Returns the target element that should be "hidden" if this component is
   # hidden from view. By default this method returns the root element (@el) of
   # the component, but this behavior may be overridden by extending classes
