@@ -3,10 +3,19 @@ template   = require './template'
 Hoverable  = require '../common/Hoverable'
 Model      = require 'stout/common/model/Model'
 
+STATE =
+  DEFAULT: 1  # Normal static state.
+  HOVER:   2  # Mouse is over the button.
+  ACTIVE:  3  # Mouse is down over button.
+  FOCUS:   4  # Button is focused.
+
 
 ##
-# Simple button component which
+# Interactive component which can be enabled/disabled and triggers mouse events
+# such as `hover`, `leave`, and events `active` and `focus`.
 #
+# @class Interactive
+
 module.exports = class Interactive extends Component
 
   ##
@@ -66,6 +75,10 @@ module.exports = class Interactive extends Component
   constructor: ->
     super arguments...
 
+    @registerEvents 'hover leave active focus'
+    @_hoverTimer = null
+    @_state = STATE.DEFAULT
+
 
   ##
   # Enables this interactive component. By default it removes the `disabled`
@@ -111,6 +124,45 @@ module.exports = class Interactive extends Component
 
 
   ##
+  # Renders this component and adds approriate event listeners for hover events.
+  #
+  # @returns {HTMLElement} The rendered root HTML DOM node.
+  #
+  # @method render
+  # @public
+
+  render: ->
+    super()
+
+    self = @
+
+    b = @_getHoverTarget()
+
+    b.addEventListener 'click', (e) ->
+      self.fire 'click', e
+
+    b.addEventListener 'mousedown', (e) ->
+      self.fire 'active', e
+
+    b.addEventListener 'focus', (e) ->
+      self.fire 'focus', e
+
+    b.addEventListener 'mouseenter', (e) ->
+      clearTimeout self._hoverTimer
+      if self._state is STATE.HOVER then return
+      self._state = STATE.HOVER
+      self.fire 'hover', e
+
+    b.addEventListener 'mouseleave', (e) ->
+      self._hoverTimer = setTimeout ->
+        self._state = STATE.DEFAULT
+        self.fire 'leave', e
+      , 10
+
+    @el
+
+
+  ##
   # Returns the target element that should be "disabled". By default this
   # method returns the first `input` element of the component but this behavior
   # may be overridden by extending classes for more complex behavior.
@@ -119,3 +171,13 @@ module.exports = class Interactive extends Component
   # @protected
 
   _getDisableTarget: -> @select 'input'
+
+
+  ##
+  # Returns the target element that should trigger hover and mouse events. By
+  # default it returns the component's root element.
+  #
+  # @method _getHoverTarget
+  # @protected
+
+  _getHoverTarget: -> @el
