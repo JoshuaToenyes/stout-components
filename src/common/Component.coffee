@@ -17,6 +17,7 @@ module.exports = class Component extends ClientView
   # @public
 
   @property 'hidden',
+    serializable: false
 
     ##
     # Hides or shows the component based on the set boolean value.
@@ -40,6 +41,7 @@ module.exports = class Component extends ClientView
   # @public
 
   @property 'visible',
+    serializable: false
 
     ##
     # Hides or shows the component based on the set boolean value.

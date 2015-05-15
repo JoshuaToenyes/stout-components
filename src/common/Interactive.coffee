@@ -23,6 +23,7 @@ module.exports = class Interactive extends Component
   # @public
 
   @property 'disabled',
+    serializable: false
 
     ##
     # Disables or enables the component based on the set boolean value.
@@ -46,6 +47,7 @@ module.exports = class Interactive extends Component
   # @public
 
   @property 'enabled',
+    serializable: false
 
     ##
     # Enables or disables the component based on the set boolean value.

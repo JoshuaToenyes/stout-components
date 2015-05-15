@@ -14,6 +14,7 @@ tmp/
 # ----
 /common/
 /button/
-/progress-button/
-/progress-bar/
-/text-input/
+/ProgressButton/
+/ProgressBar/
+/TextInput/
+/MaskedTextInput/

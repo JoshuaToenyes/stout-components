@@ -1,16 +1,14 @@
-Model = require 'stout/common/model/Model'
-Input = require './index'
+Model = require '/Users/josh/work/stout/common/model/Model'
+TextInput = require './index'
 
 class TestModel extends Model
-  @property 'phone'
+  @property 'first'
+  @property 'last'
 
-window.model = new TestModel
+window.model = new TestModel first: 'John', last: 'Smith'
 
-window.input = input = new Input label: 'Phone Number', mask: '(888) 123-4566'
-document.getElementById('demo').appendChild input.render()
+f = new TextInput model, label: 'First Name', name: 'first'
+l = new TextInput model, label: 'Last Name', name: 'last'
 
-input.bind model, 'phone'
-
-for i in [0..4]
-  input = new Input label: 'Label', placeholder: 'placeholder'
-  document.getElementById('demo').appendChild input.render()
+document.getElementById('demo').appendChild f.render()
+document.getElementById('demo').appendChild l.render()
