@@ -18,20 +18,3 @@ module.exports = class TextInput extends Input
 
     @on 'change:placeholder', =>
       if @rendered then @_getInputTarget().placeholder = @placeholder
-
-
-  ##
-  # Renders the input and attaches event listeners to DOM elements.
-  #
-  # @returns {HTMLElement} Reference to container DOM element.
-  #
-  # @param render
-  # @public
-
-  render: ->
-    super()
-
-    @_getInputTarget().addEventListener 'input', (e) =>
-      @model[@name] = e.target.value
-
-    @el

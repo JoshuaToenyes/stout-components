@@ -1,5 +1,5 @@
 dom        = require 'stout/common/utilities/dom'
-ClientView = require '/users/josh/work/stout/client/view/ClientView'
+ClientView = require '/Users/josh/work/stout/client/view/ClientView'
 
 
 ##

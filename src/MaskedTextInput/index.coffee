@@ -1,177 +1,195 @@
-_           = require 'lodash'
-dom         = require 'stout/common/utilities/dom'
-TextInput   = require '../TextInput'
+$           = require '/Users/josh/work/stout/client/$'
+keys        = require '/Users/josh/work/stout/client/keys'
+TextInput   = require './../TextInput'
+
 
 ##
 # Masked text input.
 #
+# @class MaskedTextInput
+
 module.exports = class MaskedTextInput extends TextInput
+
+  ##
+  # The mask definition. If no mask is set, the input essentially degrades to
+  # a basic TextInput.
+  #
+  # [0-9]     Indicates a numeric character
+  #
+  # [a-zA-Z]  Indicates a letter character.
+  #
+  # *         Indicates a numeric or letter character.
+  #
+  # @property mask
+  # @type string
+  # @public
 
   @property 'mask'
 
-  constructor: (opts = {}) ->
-    opts.label       or= ''
-    opts.placeholder or= ''
-    opts.template    or= 'with-label'
-    opts.name        or= ''
-    opts.id          or= ''
 
-    @_mask = opts.mask
+  ##
+  # Option to bind the raw or masked value to the model. If this flag is
+  # `true` (the default) then the raw (unmasked) value with be bound to the
+  # model, otherwise the masked value will be bound.
+  #
+  # @property bindRawValue
+  # @type boolean
+  # @public
 
+  @property 'bindRawValue',
+    serializable: false
+    default: true
+
+
+  ##
+  # MaskedTextInput constructor.
+  #
+  # @constructor
+
+  constructor: ->
+    super arguments...
+
+    ##
+    # The last key pressed by the user within this masked input.
+    #
+    # @member _lastKey
+    # @private
     @_lastKey = null
 
-    # Bound model.
-    @_model = null
-
-    # Bound field of model.
-    @_field = null
-
-    # Update prevention flag, used when updating the model and a change on the
-    # bound model should not trigger an update in the view.
-    @_preventModelUpdate = false
-
-    model =
-      placeholder:  opts.placeholder
-      label:        opts.label
-      name:         opts.name
-      id:           opts.id
-
-    super templates[opts.template],
-      model
-      {renderOnChange: false},
-      @_getInput
-
 
   ##
-  # Returns the input HTMLElement DOM node.
+  # Takes-in a passed value, applies the mask, and returns the masked and
+  # raw values of the input.
   #
-  # @returns {HTMLElement} input DOM node.
+  # @param {string} value - The value to mask.
   #
-  # @method _getInput
+  # @returns {Array<string>} - A two-member array consisting of
+  # [maskedValue, rawValue].
+  #
+  # @method _renderMask
   # @private
-
-  _getInput: ->
-    @select('input')
-
-
-  ##
-  # Returns the label element associated with the input if there is one.
-  #
-  # @returns {HTMLElement} lable DOM node.
-  #
-  # @method _getLabel
-  # @private
-
-  _getLabel: ->
-    @select('label')
-
-
-  ##
-  # Returns the outer HTMLElement object, label if there is one, or the input
-  # element itself.
-  #
-  # @returns {HTMLElement} Outer label or input element.
-  #
-  # @method _getOuterElement
-  # @private
-
-  _getOuterElement: ->
-    label = @select 'label'
-    if label then label else @select 'input'
-
-
-  _getHoverTarget: @.prototype._getInput
-
-  ##
-  # Renders the input and attaches event listeners to DOM elements.
-  #
-  # @returns {HTMLElement} Reference to container DOM element.
-  #
-  # @param render
-  # @public
-
-  render: ->
-    super()
-
-    @_getInput().addEventListener 'keydown', (e) =>
-      @_lastKey = e.which || e.keyCode || e.charCode
-
-    @_getInput().addEventListener 'input', (e) =>
-      value = e.target.value
-      if @_mask and @_lastKey isnt 8
-        value = @_renderMask value
-      @_preventModelUpdate = true
-      @_updateView value
-      @_updateModel value
-
-    @el
-
-  ##
-  # Updates the value of the input in the view.
-  #
-  # @method _updateView
-  # @protected
-
-  _updateView: (value) ->
-    @_getInput().value = value
-
-
-  ##
-  # Updates the value in the bound model.
-  #
-  # @method _updateModel
-  # @protected
-
-  _updateModel: (value) ->
-    if @_model then @_model[@_field] = value
-
-
-  ##
-  # Binds this input to the passed model and field. When the model's field
-  # changes the input will be updated to reflect the change.
-  #
-  # @param {Model} _model - The model to bind to.
-  #
-  # @param {string} _field - The field on the model to bind to.
-  #
-  # @method bind
-  # @public
-
-  bind: (@_model, @_field) ->
-    @_model.on "change:#{@_field}", (e) =>
-      if not @_preventModelUpdate
-        value = e.data.value.toString()
-        if @_mask then value = @_renderMask value
-        @_updateView value.toString()
-      @_preventModelUpdate = false
-
 
   _renderMask: (value) ->
-    value = value.replace /[^\d]/g, ''
-    maskedValue = ''
-    i = j = 0
+
+    # If passed nothing, just return empty strings.
+    if not value then return ['', '']
+
+    # If there is no mask set, just return the passed value.
+    if not @mask then return [value, value]
+
+    # Make sure we're working with a string value.
+    value = value.toString()
+
+    # Throw away everything that is not a digit or a character.
+    value = value.replace /[^\d\w]/g, ''
 
     # If the value is zero-length, then make the input blank.
     if value.length is 0 then return ''
 
+    # Create an accumulator for our masked value.
+    maskedValue = ''
+
+    # i tracks where we are in the mask.
+    i = 0
+
+    # j tracks where we are in the input value.
+    j = 0
+
+    # Loop through each character in the mask.
     loop
 
-      # If this character should be a value, place the value.
-      if @_mask[i].match /\d/
+      # If the mask indicates that an input character should be placed
+      # at this position, and the input character matches the type indicated
+      # by the mask, then place the input character in this position.
+      if (@mask[i].match(/[\d]/) and value[j].match(/[\d]/)) or
+         (@mask[i].match(/[a-zA-Z]/) and value[j].match(/[a-zA-Z]/)) or
+         (@mask[i].match(/\*/) and value[j].match(/[\w\d]/))
+
         maskedValue += value[j]
         j++
         i++
 
-      # Otherwise, place the masking character.
-      else
-        maskedValue += @_mask[i]
+      # If this character is a mask-literal, then add it to the output.
+      else if @mask[i].match(/[^\w*]/)
+        maskedValue += @mask[i]
         i++
 
+      # If this character should be user-input, but does not match what the
+      # mask indicates it should be, the break out of the loop because the
+      # character at this location is not valid and should not be included.
+      else
+        break
+
       # If we've reached the end of the mask, break.
-      if i >= @_mask.length then break
+      if i >= @mask.length then break
 
       # If the next character should be user-supplied, and there are no more
       # user supplied characters, then break
-      if @_mask[i].match(/\d/) and j >= value.length then break
+      if @mask[i].match(/[\w*]/) and j >= value.length then break
 
-    return maskedValue
+    rawValue = value.substring 0, j
+
+    # Return both the masked value and the raw, non-formatted value.
+    [maskedValue, rawValue]
+
+
+  ##
+  # Attaches relevant listeners and renders the component.
+  #
+  # @method render
+  # @override
+  # @public
+
+  render: ->
+    super()
+    $(@_getInputTarget()).keydown (e) => @_lastKey = e.code
+    @el
+
+
+  ##
+  # Called whenever the model value changes. When this occurs, if there is a
+  # mask, calculate the raw and masked value of the model value. Update the view
+  # to the masked value. If there is no mask set, simply set the view to the
+  # raw value in the model.
+  #
+  # @method _updateView
+  # @override
+  # @protected
+
+  _updateView: (v) =>
+    [masked, raw] = @_renderMask v
+    @select('input').value = masked
+
+
+  ##
+  # Called whenever the input value changes. When this occurs, if there is a
+  # mask, calculate the raw and masked value of the input. Update the view
+  # to the masked value (stripping any invalid characters) and update the model
+  # to the raw value. If there is no mask set, simply set the model to the
+  # raw input value.
+  #
+  # @method _updateModel
+  # @override
+  # @protected
+
+  _updateModel: (v) =>
+    [masked, raw] = @_renderMask v
+    if @_lastKey isnt keys.BACKSPACE
+      @select('input').value = masked
+    if @bindRawValue
+      @model[@name] = raw
+    else
+      @model[@name] = masked
+
+
+  ##
+  # Masks the model's value prior to rendering.
+  #
+  # @method _preRender
+  # @override
+  # @protected
+
+  _preRender: (obj) ->
+    [masked, raw] = @_renderMask obj.model[@name]
+    obj.model[@name] = masked
+    super(obj)

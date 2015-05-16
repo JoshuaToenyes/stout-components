@@ -1,16 +1,24 @@
-Model = require 'stout/common/model/Model'
-MaskedInput = require './index'
+Model           = require '/Users/josh/work/stout/common/model/Model'
+MaskedTextInput = require './index'
 
 class TestModel extends Model
   @property 'phone'
+  @property 'dob'
 
-window.model = new TestModel
+window.model = new TestModel phone: '6197561954'
 
-window.input = input = new MaskedInput label: 'Phone Number', mask: '(888) 123-4566'
-document.getElementById('demo').appendChild input.render()
+window.phone = new MaskedTextInput model,
+  label: 'Phone Number'
+  mask: '(888) 123-4566'
+  name: 'phone'
+  placeholder: '(619) 555-1212'
 
-input.bind model, 'phone'
+window.dob = new MaskedTextInput model,
+  label: 'Date of Birth'
+  mask: '01/01/1985'
+  name: 'dob'
+  placeholder: '01/01/1985'
+  bindRawValue: false
 
-for i in [0..4]
-  input = new Input label: 'Label', placeholder: 'placeholder'
-  document.getElementById('demo').appendChild input.render()
+document.getElementById('demo').appendChild phone.render()
+document.getElementById('demo').appendChild dob.render()

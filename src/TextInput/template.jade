@@ -1,7 +1,9 @@
 if label
 
+  - value = name && model ? model[name] : ''
+
   label #{label}
-    input(type='text', placeholder='#{placeholder}', name='#{name}', value='#{model[name]}')
+    input(type='text', placeholder='#{placeholder}', name='#{name}', value='#{value}')
 
 else
     
