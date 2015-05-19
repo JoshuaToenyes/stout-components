@@ -9,7 +9,7 @@ window.model = new TestModel phone: '6197561954'
 
 window.phone = new MaskedTextInput model,
   label: 'Phone Number'
-  mask: '(888) 123-4566'
+  mask: '(888) 123-4566? \\x123'
   name: 'phone'
   placeholder: '(619) 555-1212'
 

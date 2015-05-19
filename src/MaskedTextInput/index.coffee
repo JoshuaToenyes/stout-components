@@ -57,14 +57,30 @@ module.exports = class MaskedTextInput extends TextInput
     @_lastKey = null
 
 
+  _matchInputValue: (i, value) ->
+    prev = @mask[i - 1] unless i == 0
+    curr = @mask[i]
+
+    # If the previous mask character was a `\` then this character should be
+    # a literal.
+    if prev is '\\' then return false
+
+    # If the mask indicates that an input character should be placed
+    # at this position, and the input character matches the type indicated
+    # by the mask, then place the input character in this position.
+    (curr == value) or
+    (curr.match(/[\d]/) and value.match(/[\d]/)) or
+    (curr.match(/[a-zA-Z]/) and value.match(/[a-zA-Z]/)) or
+    (curr.match(/\*/) and value.match(/[\w\d]/))
+
+
   ##
   # Takes-in a passed value, applies the mask, and returns the masked and
   # raw values of the input.
   #
   # @param {string} value - The value to mask.
   #
-  # @returns {Array<string>} - A two-member array consisting of
-  # [maskedValue, rawValue].
+  # @returns {string} - The masked string value.
   #
   # @method _renderMask
   # @private
@@ -72,16 +88,13 @@ module.exports = class MaskedTextInput extends TextInput
   _renderMask: (value) ->
 
     # If passed nothing, just return empty strings.
-    if not value then return ['', '']
+    if not value then return ''
 
     # If there is no mask set, just return the passed value.
-    if not @mask then return [value, value]
+    if not @mask then return value
 
     # Make sure we're working with a string value.
     value = value.toString()
-
-    # Throw away everything that is not a digit or a character.
-    value = value.replace /[^\d\w]/g, ''
 
     # If the value is zero-length, then make the input blank.
     if value.length is 0 then return ''
@@ -98,19 +111,29 @@ module.exports = class MaskedTextInput extends TextInput
     # Loop through each character in the mask.
     loop
 
+      if @mask[i] is '?'
+        if not (i > 0 and @mask[i-1] is '\\')
+          if j is value.length
+            break
+          else
+            i++
+
+      # Skip parsing if we get a backslash.
+      if @mask[i] is '\\'
+        i++
+        j++
+        continue
+
       # If the mask indicates that an input character should be placed
-      # at this position, and the input character matches the type indicated
-      # by the mask, then place the input character in this position.
-      if (@mask[i].match(/[\d]/) and value[j].match(/[\d]/)) or
-         (@mask[i].match(/[a-zA-Z]/) and value[j].match(/[a-zA-Z]/)) or
-         (@mask[i].match(/\*/) and value[j].match(/[\w\d]/))
+      # at this position then place the input character in this position.
+      if @_matchInputValue(i, value[j])
 
         maskedValue += value[j]
         j++
         i++
 
       # If this character is a mask-literal, then add it to the output.
-      else if @mask[i].match(/[^\w*]/)
+      else if (i > 0 and @mask[i-1] is '\\') or @mask[i].match(/[^\w*]/)
         maskedValue += @mask[i]
         i++
 
@@ -130,7 +153,7 @@ module.exports = class MaskedTextInput extends TextInput
     rawValue = value.substring 0, j
 
     # Return both the masked value and the raw, non-formatted value.
-    [maskedValue, rawValue]
+    maskedValue
 
 
   ##
@@ -157,8 +180,7 @@ module.exports = class MaskedTextInput extends TextInput
   # @protected
 
   _updateView: (v) =>
-    [masked, raw] = @_renderMask v
-    @select('input').value = masked
+    @select('input').value = @_renderMask v
 
 
   ##
@@ -173,13 +195,10 @@ module.exports = class MaskedTextInput extends TextInput
   # @protected
 
   _updateModel: (v) =>
-    [masked, raw] = @_renderMask v
+    masked = @_renderMask v
     if @_lastKey isnt keys.BACKSPACE
       @select('input').value = masked
-    if @bindRawValue
-      @model[@name] = raw
-    else
-      @model[@name] = masked
+    @model[@name] = masked
 
 
   ##
@@ -190,6 +209,5 @@ module.exports = class MaskedTextInput extends TextInput
   # @protected
 
   _preRender: (obj) ->
-    [masked, raw] = @_renderMask obj.model[@name]
-    obj.model[@name] = masked
+    obj.model[@name] = @_renderMask obj.model[@name]
     super(obj)
