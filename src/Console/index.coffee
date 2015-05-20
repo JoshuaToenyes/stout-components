@@ -59,17 +59,7 @@ module.exports = class Console extends Output
   constructor: (model, init = {}) ->
     super template, model, {renderOnChange: false}, init
 
-    ##
-    # The currently rendered content.
-    #
-    # @property _currentValue
-    # @type string
-    # @private
-
-    @_currentValue = model[@field] or ''
-
-    model.on "change:#{@field}", (e) =>
-      @_updateView e.data.value
+    model.on "change:#{@field}", @_updateView
 
 
   ##
@@ -80,17 +70,18 @@ module.exports = class Console extends Output
   # subset of the updated model's contents, the output is completely
   # re-rendered.
   #
-  # @param {string} v - Updated model contents.
+  # @param {string} e - Model-change event.
   #
   # @method _updateView
   # @private
 
-  _updateView: (v) ->
+  _updateView: (e) =>
     if not @rendered then return
     pre = @select('pre')
 
     # Grab the current content and use `nc` as the "new content."
-    cc = @_currentValue
+    v = e.data.value
+    cc = e.data.old
     nc = ''
 
     # Detect if we should clear the window and start-over.
@@ -104,9 +95,6 @@ module.exports = class Console extends Output
     el = document.createElement 'span'
     el.textContent = nc
     pre.appendChild el
-
-    # Update the current value.
-    @_currentValue = v
 
     # Measure how-close we are to the bottom of the console window.
     triggerScroll = Math.abs(

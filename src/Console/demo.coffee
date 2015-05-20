@@ -11,7 +11,7 @@ window.cons = new Console model, field: 'output'
 
 setInterval ->
   model.output += _.now() + '\n'
-, 500
+, 100
 
 
 document.getElementById('demo').appendChild cons.render()

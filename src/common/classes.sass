@@ -9,6 +9,38 @@
   opacity: 0
 
 
+///
+// Prettifies the extending container's scrollbars.
+//
+//
+%beautified-scrollbars
+  &::-webkit-scrollbar
+    width: 10px
+    height: 10px
+
+  &::-webkit-scrollbar-track
+    opacity: 0.3
+
+  &::-webkit-scrollbar-track:vertical
+    background-color: $sc-color-bg-subtle
+    border-left: 1px solid $sc-border-subtle
+
+  &::-webkit-scrollbar-track:horizontal
+    background-color: $sc-color-bg-subtle
+    border-top: 1px solid $sc-border-subtle
+
+  &::-webkit-scrollbar-corner
+    background-color: $sc-color-bg-subtle
+    border-left: 1px solid $sc-border-subtle
+    border-top: 1px solid $sc-border-subtle
+
+  &::-webkit-scrollbar-thumb
+    background-color: $sc-border-subtle
+
+  &::-webkit-scrollbar-thumb:hover
+    background-color: $sc-color-fg-subtle
+
+
 %cover-parent
   position: absolute
   display: block
