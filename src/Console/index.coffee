@@ -48,7 +48,7 @@ module.exports = class Console extends Output
   # @public
 
   @property 'threshold',
-    default: 100
+    default: 20
 
 
   ##

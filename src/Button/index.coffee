@@ -1,11 +1,19 @@
+##
+# Defines the Button component class.
+#
+# @author Joshua Toenyes <josh@goatriot.com>
+
 dom         = require 'stout/common/utilities/dom'
 template    = require './template'
 Interactive = require '../common/Interactive'
 
 
 ##
-# Simple button component which
+# Simple Button component class.
 #
+# @class Button
+# @public
+
 module.exports = class Button extends Interactive
 
   ##
@@ -21,7 +29,9 @@ module.exports = class Button extends Interactive
   ##
   # Button constructor.
   #
-  # @param {string} [label='Button'] - The initial button label.
+  # @param {object} [init={}] - Initial property values.
+  #
+  # @param {string} [init.label=''] - Button label.
   #
   # @constructor
 
@@ -33,6 +43,7 @@ module.exports = class Button extends Interactive
   # Fills the button with the background color, making it visible.
   #
   # @method show
+  # @override
   # @protected
 
   show: ->
@@ -43,6 +54,7 @@ module.exports = class Button extends Interactive
   # Removes the fill from the button background, hiding the button.
   #
   # @method hide
+  # @override
   # @protected
 
   hide: ->
@@ -66,6 +78,7 @@ module.exports = class Button extends Interactive
   # @returns {HTMLElement} The button DOM node.
   #
   # @method _getDisableTarget
+  # @override
   # @protected
 
   _getDisableTarget: @.prototype._getButton
@@ -77,6 +90,7 @@ module.exports = class Button extends Interactive
   # @returns {HTMLElement} The button DOM node.
   #
   # @method _getHoverTarget
+  # @override
   # @protected
 
   _getHoverTarget: @.prototype._getButton
