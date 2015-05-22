@@ -1,0 +1,34 @@
+// @requires bourbon
+
+@import "./../common/variables"
+@import "./../common/classes"
+@import "./../common/exports"
+
+
++exports('floating')
+
+  .sc-floating
+    position: fixed
+
+    &.sc-left
+      left: 0
+
+    &.sc-right
+      right: 0
+
+    &.sc-center
+      left: 50%
+      +transform(translateX(-50%))
+
+    &.sc-top
+      top: 0
+
+    &.sc-bottom
+      bottom: 0
+
+    &.sc-middle
+      top: 50%
+      +transform(translateY(-50%))
+
+    &.sc-middle.sc-center
+      +transform(translate(-50%, -50%))
