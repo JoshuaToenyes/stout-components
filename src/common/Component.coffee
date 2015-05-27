@@ -68,6 +68,7 @@ module.exports = class Component extends ClientView
 
   constructor: ->
     super arguments...
+    @classes.push 'sc-component'
 
 
   ##
@@ -80,7 +81,7 @@ module.exports = class Component extends ClientView
   # @method show
   # @public
 
-  show: -> if @rendered then dom.removeClass @_getHideTarget(), 'sc-hidden'
+  show: => if @rendered then dom.removeClass @_getHideTarget(), 'sc-hidden'
 
 
   ##
@@ -93,7 +94,7 @@ module.exports = class Component extends ClientView
   # @method hide
   # @public
 
-  hide: ->  if @rendered then dom.addClass @_getHideTarget(), 'sc-hidden'
+  hide: =>  if @rendered then dom.addClass @_getHideTarget(), 'sc-hidden'
 
 
   ##
@@ -106,7 +107,7 @@ module.exports = class Component extends ClientView
   # @method isVisible
   # @public
 
-  isVisible: ->
+  isVisible: =>
     if @rendered
       not dom.hasClass @_getHideTarget(), 'sc-hidden'
     else
@@ -123,7 +124,7 @@ module.exports = class Component extends ClientView
   # @public
   render: ->
     super()
-    dom.addClass @el, 'sc-component'
+    #dom.addClass @el, 'sc-component'
     @el
 
 

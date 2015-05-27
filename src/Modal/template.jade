@@ -1,1 +1,8 @@
-aside #{content}
+aside.sc-modal-box
+  header
+    - if(title)
+      h1 #{title}
+    - if(showClose)
+      a.sc-modal-close ×
+  section.sc-container-contents
+div.sc-modal-backdrop 

@@ -3,16 +3,57 @@
 @import "./../common/variables"
 @import "./../common/classes"
 @import "./../common/exports"
+@import "./../FloatingContainer/floating-container"
 
 
-+exports('console')
++exports('modal')
 
-  .sc-console
-    @extend %beautified-scrollbars
-    font-family: $sc-fontstack-monospaced
-    overflow: auto
-    padding: 0.3em
-    height: 20em
-    width: 40em
+  .sc-modal-box
+    position: relative
+    z-index: 2
     background-color: $sc-color-bg
-    border: 1px solid $sc-border-subtle
+    margin-top: -6em
+    box-shadow: 0 0 4px rgba(black, 0.3)
+    border-radius: 0.1em
+    padding: modular-scale(3)
+    +transition(all $sc-transition-time)
+    +transform(scale(1))
+
+    header
+      h1
+        padding-right: 2em
+        margin-top: 0
+        margin-bottom: modular-scale(-2)
+        font-weight: lighter
+
+    .sc-modal-close
+      display: block
+      position: absolute
+      padding: 0.5em
+      top: -0.5em
+      right: -0.1em
+      font-size: 1.5em
+      color: $sc-color-fg-subtle
+      cursor: pointer
+      +user-select(none)
+      +transition(all $sc-transition-time-slow)
+
+      &:hover
+        color: $sc-color-bad
+
+  .sc-modal-backdrop
+    position: fixed
+    z-index: 1
+    left: -3000px
+    top: -3000px
+    height: 10000px
+    width: 10000px
+    background-color: rgba(black, 0.6)
+
+  .sc-hidden
+    .sc-modal-box, .sc-modal-backdrop
+      +transform(translateX(-10000px))
+      +transition(transform 0 $sc-transition-time-slow)
+
+    .sc-modal-box
+      +transform(scale(0.4))

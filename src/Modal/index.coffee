@@ -2,8 +2,9 @@
 # Defines the Console component class, which is a simple console-like
 # text-output component.
 
-template    = require './template'
-Floating    = require './../Floating'
+Container         = require './../common/Container'
+FloatingContainer = require './../FloatingContainer'
+template          = require './template'
 
 
 
@@ -12,18 +13,29 @@ Floating    = require './../Floating'
 #
 # @class Modal
 
-module.exports = class Modal extends Floating
+module.exports = class Modal extends Container
 
   ##
-  # The name of the property on the model which contains the output which
-  # should be renderd.
+  # Set to `true` if the close "x" should be shown on the modal.
   #
-  # @property field
-  # @type string
+  # @property showClose
+  # @type boolean
+  # @default true
   # @public
 
-  @property 'field',
-    required: true
+  @property 'showClose',
+    default: true
+
+
+  ##
+  # The modal header's title.
+  #
+  # @property title
+  # @type string
+  # @default null
+  # @public
+
+  @property 'title'
 
 
   ##
@@ -31,7 +43,36 @@ module.exports = class Modal extends Floating
   #
   # @constructor
 
-  constructor: (model, init = {}) ->
-    super template, model, {renderOnChange: false}, init
+  constructor: (init = {}) ->
+    super template, null, {renderOnChange: false}, init
+    @_fc = new FloatingContainer
+    @_fc.classes.push 'sc-modal'
+    @classes.push 'sc-hidden'
+    #@classes.push 'sc-modal'
 
-    model.on "change:#{@field}", @_updateView
+
+  ##
+  # Opens the modal window. Optionally, a title and modal contents may be
+  # passed to this method which will override the existing title and modal.
+  # This method is essentially equivalent to calling `#render()` followed by
+  # `#show()`.
+  #
+  # @param {string} [title] - The modal title.
+  #
+  # @param {string|HTMLElement|ClientView} [contents] - The modal contents.
+  #
+  # @todo This should return a composed promise.
+  #
+  # @method open
+  # @public
+
+  open: (title, contents) ->
+    if @visible then return
+    if title then @title = title
+    if contents then @contents = contents
+    @render()
+    setTimeout @show, 0
+
+
+  render: ->
+    @_fc.render(super())

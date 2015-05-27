@@ -1,17 +1,9 @@
 _       = require 'lodash'
-Model   = require '/Users/josh/work/stout/common/model/Model'
-Console = require './index'
+Modal = require './index'
 
-class TestModel extends Model
-  @property 'output'
+window.modal = new Modal
+  contents: 'Select the timezone where this thing you are talking about should occur.',
+  title: 'Set Expiration Date for Thing'
+  showClose: true
 
-window.model = new TestModel output: ''
-
-window.cons = new Console model, field: 'output'
-
-setInterval ->
-  model.output += _.now() + '\n'
-, 100
-
-
-document.getElementById('demo').appendChild cons.render()
+document.getElementById('demo').appendChild modal.render()
