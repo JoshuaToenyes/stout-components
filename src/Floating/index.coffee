@@ -1,42 +1,60 @@
-Output   = require './../common/Output'
-template = require './template'
+##
+# Defines the Floating container class.
+#
+# @fileoverview
+
+Container = require './../common/Container'
+template  = require './template'
 
 
 ##
-# Generic floating component.
+# Generic floating container component. It defines a container which may be
+# positioned horizontally left, center or right, and vertically top, middle, or
+# bottom.
 #
 # @class Floating
 
-module.exports = class Floating extends Output
+module.exports = class Floating extends Container
 
-  @property 'content'
+  ##
+  # The horizontal alignment of this floating container. Changing this property
+  # will trigger a re-render of the entire container.
+  #
+  # @property horizontalAlign
+  # @default 'center'
+  # @type string
+  # @values 'left', 'center', 'right'
+  # @public
 
   @property 'horizontalAlign',
     default: 'center'
     values: ['left', 'center', 'right']
 
+
+  ##
+  # The vertical alignment of this floating container. Changing this property
+  # will trigger a re-render of the entire container.
+  #
+  # @property verticalAlign
+  # @default 'middle'
+  # @type string
+  # @values 'top', 'middle', 'bottom'
+  # @public
+
   @property 'verticalAlign',
     default: 'middle'
     values: ['top', 'bottom', 'middle']
 
+
   ##
-  # Floating component constructor.
+  # Floating container component constructor.
   #
-  # @see Output#constructor
+  # @param {object} init - Object initialization.
   #
   # @constructor
 
   constructor: (init) ->
     super template, null, {renderOnChange: false}, init
 
-    @on 'change:content change:horizontalAlign change:verticalAlign', @render
-
-
-  ##
-  #
-  # @param {string} contents - The HTML contents of the floating container.
-  #
-  # @method render
-  # @public
-  render: (contents) ->
-    super()
+    @on 'change:horizontalAlign change:verticalAlign', ->
+      if @rendered then @render()

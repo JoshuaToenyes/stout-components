@@ -3,7 +3,7 @@
 # text-output component.
 
 template    = require './template'
-Floating    = require './../common/Floating'
+Floating    = require './../Floating'
 
 
 
