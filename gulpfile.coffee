@@ -22,37 +22,56 @@ uglify     = require 'gulp-uglify'
 TEST_SERVER_PORT = 8000
 
 
-# Glob pattern for Jade template files.
-TEMPLATES_GLOB = './src/**/[!_]*.jade'
+# --- Jade Globs ---
 
+# Glob pattern for Jade template files.
+SRC_TEMPLATES = './src/**/[!_]*.jade'
 
 # Glob pattern for test Jade template files.
-TEST_JADE_GLOB = './test/**/[!_]*.jade'
+TEST_JADE = './test/**/[!_]*.jade'
 
+# Glob pattern for example Jade template files.
+EXAMPLE_JADE = './example/**/[!_]*.jade'
+
+
+# --- CoffeeScript Globs ---
 
 # Glob pattern for CoffeeScript source files.
-COFFEE_GLOB = './src/**/*.coffee'
-
+SRC_COFFEE = './src/**/*.coffee'
 
 # Glob pattern for test CoffeeScript files.
-TEST_COFFEE_GLOB = './test/**/*.coffee'
+TEST_COFFEE = './test/**/*.coffee'
+
+# Glob pattern for example CoffeeScript files.
+EXAMPLE_COFFEE = './example/**/*.coffee'
 
 
-# Files matching this pattern will be run as tests with Karma.
-KARMA_TESTS_GLOB = ['./test/**/*-test-bundle.js', './test/**/*.css']
-
+# --- SASS Globs ---
 
 # Glob pattern for source SASS files.
-SASS_GLOB = './src/!(common)/*.sass'
-
+SRC_SASS = './src/!(common)/*.sass'
 
 # Glob pattern for test SASS files.
-TEST_SASS_GLOB = './test/!(common)/*.sass'
+TEST_SASS = './test/!(common)/*.sass'
 
+# Glob pattern for test SASS files.
+EXAMPLE_SASS = './example/!(common)/*.sass'
+
+
+# --- Bundle Globs ---
 
 # Glob pattern for bundling test files. (Bundle all .js files in the test
 # directory except already-bundled files.)
-TEST_BUNDLE_GLOB = './test/**/*[!-bundle].js'
+TEST_BUNDLE = './test/**/*[!-bundle].js'
+
+# Glob pattern for bundling example files.
+EXAMPLE_BUNDLE = './example/**/*[!-bundle].js'
+
+
+# --- Test Specific Globs ---
+
+# Files matching this pattern will be run as tests with Karma.
+KARMA_TESTS = ['./test/**/*-test-bundle.js', './test/**/*.css']
 
 
 # Compiles the passed glob with SASS.
@@ -80,75 +99,18 @@ coffeeLint = (glob) ->
     .pipe coffeelint.reporter()
 
 
+# Runs Karma tests on the passed glob.
 runKarma = (glob, singleRun = true) ->
   opts =
     configFile: 'karma.conf.coffee'
     action: if singleRun then 'run' else 'watch'
-  gulp.src KARMA_TESTS_GLOB
+  gulp.src KARMA_TESTS
     .pipe karma(opts)
 
 
-# Builds test HTML pages.
-gulp.task 'compile:pages:test', ->
-  gulp.src TEST_JADE_GLOB
-    .pipe jade()
-    .pipe gulp.dest './test'
-
-
-# Runs coffeelint on all CoffeeScript files.
-gulp.task 'coffeelint', ->
-  coffeeLint COFFEE_GLOB
-
-
-# Runs coffeelint on all test CoffeeScript files.
-gulp.task 'coffeelint:test', ->
-  coffeeLint TEST_COFFEE_GLOB
-
-
-# Compiles template Jade files.
-gulp.task 'compile:templates', ->
-  gulp.src TEMPLATES_GLOB
-    .pipe jade(client: true)
-    .pipe insert.prepend 'jade = require("jade/runtime");\n'
-    .pipe insert.append '\nmodule.exports = template'
-    .pipe gulp.dest './'
-
-
-# Compiles all CoffeeScript.
-gulp.task 'compile:coffee', ['coffeelint'], ->
-  compileCoffee COFFEE_GLOB
-
-
-# Compiles test CoffeeScript.
-gulp.task 'compile:coffee:test', ['coffeelint'], ->
-  compileCoffee TEST_COFFEE_GLOB, './test'
-
-
-# Copies the SASS source files from the src folder to the corresponding
-# folder at the package root.
-gulp.task 'copy:sass', ->
-  gulp.src ['./src/**/*.sass', './src/**/*.scss']
-    .pipe gulp.dest './'
-
-
-# Compiles source SASS files to CSS and places the output in the corresponding
-# folder at the package root.
-gulp.task 'compile:sass', ['copy:sass'], ->
-  compileSass SASS_GLOB
-
-
-# Compiles test SASS files.
-gulp.task 'compile:sass:test', ['copy:sass'], ->
-  compileSass TEST_SASS_GLOB, './test'
-
-
-# Bundles test JavaScript files.
-gulp.task 'bundle:test', [
-  'compile:templates'
-  'compile:coffee'
-  'compile:coffee:test'
-  ], (done) ->
-  glob TEST_BUNDLE_GLOB, (err, files) ->
+# Bundles glob-matched files using Browserify.
+bundle = (glb, done) ->
+  glob glb, (err, files) ->
     if err
       gutil.log err
     else
@@ -168,49 +130,134 @@ gulp.task 'bundle:test', [
           .pipe gcb(cb)
 
 
+# Builds test HTML pages.
+gulp.task 'compile-pages-tests', ->
+  gulp.src TEST_JADE
+    .pipe jade()
+    .pipe gulp.dest './test'
+
+
+# Builds example HTML pages.
+gulp.task 'compile-pages-examples', ->
+  gulp.src EXAMPLE_JADE
+    .pipe jade()
+    .pipe gulp.dest './example'
+
+
+# Runs coffeelint on all CoffeeScript files.
+gulp.task 'coffeelint-src', ->
+  coffeeLint SRC_COFFEE
+
+
+# Runs coffeelint on all test CoffeeScript files.
+gulp.task 'coffeelint-tests', ->
+  coffeeLint TEST_COFFEE
+
+
+# Runs coffeelint on all example CoffeeScript files.
+gulp.task 'coffeelint-examples', ->
+  coffeeLint EXAMPLE_COFFEE
+
+
+# Compiles template Jade files.
+gulp.task 'compile-templates-src', ->
+  gulp.src SRC_TEMPLATES
+    .pipe jade(client: true)
+    .pipe insert.prepend 'jade = require("jade/runtime");\n'
+    .pipe insert.append '\nmodule.exports = template;'
+    .pipe gulp.dest './'
+
+
+# Compiles all CoffeeScript.
+gulp.task 'compile-coffee-src', ['coffeelint-src', 'compile-templates-src'], ->
+  compileCoffee SRC_COFFEE
+
+
+# Compiles test CoffeeScript.
+gulp.task 'compile-coffee-tests', ['coffeelint-tests', 'compile-coffee-src'], ->
+  compileCoffee TEST_COFFEE, './test'
+
+
+# Compiles example files CoffeeScript.
+gulp.task 'compile-coffee-examples', ['coffeelint-examples', 'compile-coffee-src'], ->
+  compileCoffee EXAMPLE_COFFEE, './example'
+
+
+# Copies the SASS source files from the src folder to the corresponding
+# folder at the package root.
+gulp.task 'copy-sass-src', ->
+  gulp.src ['./src/**/*.sass', './src/**/*.scss']
+    .pipe gulp.dest './'
+
+
+# Compiles source SASS files to CSS and places the output in the corresponding
+# folder at the package root.
+gulp.task 'compile-sass-src', ['copy-sass-src'], ->
+  compileSass SRC_SASS
+
+
+# Compiles test SASS files.
+gulp.task 'compile-sass-tests', ['compile-sass-src'], ->
+  compileSass TEST_SASS, './test'
+
+
+# Compiles example SASS files.
+gulp.task 'compile-sass-examples', ['compile-sass-src'], ->
+  compileSass EXAMPLE_SASS, './example'
+
+
+# Bundles test JavaScript files.
+gulp.task 'bundle-tests', ['compile-coffee-tests'], (done) ->
+    bundle(TEST_BUNDLE, done)
+
+
+# Bundles example JavaScript files.
+gulp.task 'bundle-examples', ['compile-coffee-examples'], (done) ->
+    bundle(EXAMPLE_BUNDLE, done)
+
+
 gulp.task 'serve', ->
-  server = gls.static './', TEST_SERVER_PORT
+  server = gls.static './example', TEST_SERVER_PORT
   server.start()
 
 
-gulp.task 'test', ['build:test'], ->
-  runKarma KARMA_TESTS_GLOB, true
+# Runs a single run of the Karma tests.
+gulp.task 'test', ['build-tests'], ->
+  runKarma KARMA_TESTS, true
 
 
+# Opens and runs Karma tests continuously.
 gulp.task 'karma', ->
-  runKarma KARMA_TESTS_GLOB, false
+  runKarma KARMA_TESTS, false
 
 
-# Watches files and re-compiles as needed.
+# Watches files and re-compiles as required.
 gulp.task 'watch', ->
 
-  # Watch all CoffeeScript files, when they change re-bundle the tests.
-  gulp.watch [
-    COFFEE_GLOB
-    TEST_COFFEE_GLOB
-    TEMPLATES_GLOB
-  ], ['bundle:test']
-
-  # Recompile SASS files when they change.
-  gulp.watch [
-    SASS_GLOB
-  ], ['compile:sass']
-
   # Recompile test SASS files when they change.
-  gulp.watch [
-    TEST_SASS_GLOB
-  ], ['compile:sass:test']
+  gulp.watch [SRC_SASS], ['compile-sass-src']
+  gulp.watch [TEST_SASS], ['compile-sass-tests']
+  gulp.watch [EXAMPLE_SASS], ['compile-sass-examples']
 
   # Recompile test pages when they change.
-  gulp.watch [
-    TEST_JADE_GLOB
-  ], ['compile:pages:test']
+  gulp.watch [TEST_JADE], ['compile-pages-tests']
+  gulp.watch [EXAMPLE_JADE], ['compile-pages-examples']
+
+
+# Watches files with the intent of running karma tests.
+gulp.task 'watch-tests', ['watch'], ->
+  gulp.watch [SRC_COFFEE, TEST_COFFEE, SRC_TEMPLATES], ['build-tests']
+
+
+# Watches files with the intent of running the examples.
+gulp.task 'watch-examples', ['watch'], ->
+  gulp.watch [SRC_COFFEE, EXAMPLE_COFFEE, SRC_TEMPLATES], ['build-examples']
 
 
 # Cleans the package.
 gulp.task 'clean', ->
   del.sync([
-    './!(src|test|lib|node_modules)/'
+    './!(src|test|lib|node_modules|example)/'
     './test/**/*.html'
     './test/**/*.js'
     './test/**/*.css'
@@ -218,19 +265,25 @@ gulp.task 'clean', ->
 
 
 # Builds the package.
-gulp.task 'build', [
-  'clean'
-  'compile:coffee'
-  'compile:sass'
-  'compile:templates'
+gulp.task 'build-src', [
+  'compile-coffee-src'
+  'compile-sass-src'
   ]
 
 
 # Builds the package for testing.
-gulp.task 'build:test', [
-  'clean'
-  'compile:sass'
-  'compile:sass:test'
-  'compile:pages:test'
-  'bundle:test'
+gulp.task 'build-tests', [
+  'compile-coffee-tests'
+  'compile-sass-tests'
+  'compile-pages-tests'
+  'bundle-tests'
+  ]
+
+
+# Builds the examples.
+gulp.task 'build-examples', [
+  'compile-coffee-examples'
+  'compile-sass-examples'
+  'compile-pages-examples'
+  'bundle-examples'
   ]
