@@ -10,3 +10,8 @@ tmp/
 *.js
 *.css
 .sass-cache/
+test/*.css
+test/*.html
+test/*.js
+/*/*.sass
+/*/*.scss

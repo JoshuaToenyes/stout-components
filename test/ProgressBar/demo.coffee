@@ -1,4 +1,4 @@
-ProgressBar = require './index'
+ProgressBar = require './../../ProgressBar'
 Model       = require 'stout/common/model/Model'
 
 class SampleModel extends Model

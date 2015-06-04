@@ -1,5 +1,5 @@
 Model = require '/Users/josh/work/stout/common/model/Model'
-TextInput = require './index'
+TextInput = require './../../TextInput'
 
 class TestModel extends Model
   @property 'first'

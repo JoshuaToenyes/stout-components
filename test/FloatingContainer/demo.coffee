@@ -1,9 +1,9 @@
 _        = require 'lodash'
-Floating = require './index'
+FloatingContainer = require './../../FloatingContainer'
 
 e = document.createElement 'h2'
 e.textContent = 'Floating Content'
 
-window.floater = new Floating contents: e
+window.floater = new FloatingContainer contents: e
 
 document.getElementById('demo').appendChild floater.render()

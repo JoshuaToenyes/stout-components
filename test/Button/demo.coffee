@@ -1,4 +1,4 @@
-Button = require './index'
+Button = require './../../Button'
 
 window.button = new Button label: 'Test Button'
 button.el = document.getElementById('demo')

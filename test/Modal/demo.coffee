@@ -1,5 +1,5 @@
 _       = require 'lodash'
-Modal = require './index'
+Modal = require './../../Modal'
 
 window.modal = new Modal
   contents: 'Select the timezone where this thing you are talking about should occur.',

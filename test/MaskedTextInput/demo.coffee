@@ -1,5 +1,5 @@
 Model           = require '/Users/josh/work/stout/common/model/Model'
-MaskedTextInput = require './index'
+MaskedTextInput = require './../../MaskedTextInput'
 
 class TestModel extends Model
   @property 'phone'

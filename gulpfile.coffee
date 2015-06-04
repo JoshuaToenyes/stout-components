@@ -15,63 +15,81 @@ sourcemaps = require 'gulp-sourcemaps'
 uglify     = require 'gulp-uglify'
 
 
-JADE_GLOB = './src/**/!(demo).jade'
+# The port to run the test server on.
+TEST_SERVER_PORT = 8000
 
 
-DEMO_JADE_GLOB = ['./src/**/demo.jade', './src/*.jade']
+# Glob pattern for Jade template files.
+JADE_GLOB = './src/**/[!_]*.jade'
 
 
-COFFEE_GLOB = './src/**/!(demo).coffee'
+# Glob pattern for test Jade template files.
+TEST_JADE_GLOB = './test/**/[!_]*.jade'
 
 
-DEMO_COFFEE_GLOB = './src/**/demo.coffee'
+# Glob pattern for CoffeeScript source files.
+COFFEE_GLOB = './src/**/*.coffee'
 
 
-SASS_GLOB = './src/!(common)/!(demo).sass'
+# Glob pattern for test CoffeeScript files.
+TEST_COFFEE_GLOB = './test/**/*.coffee'
 
 
-DEMO_SASS_GLOB = './src/!(common)/demo.sass'
+# Glob pattern for source SASS files.
+SASS_GLOB = './src/!(common)/*.sass'
 
 
-DEMO_BUNDLE_GLOB = './**/demo.js'
+# Glob pattern for test SASS files.
+TEST_SASS_GLOB = './test/!(common)/*.sass'
 
 
-compileSass = (glob) ->
+# Glob pattern for bundling test files.
+TEST_BUNDLE_GLOB = './**/demo.js'
+
+
+# Compiles the passed glob with SASS.
+compileSass = (glob, dest = './') ->
   gulp.src glob
     .pipe sourcemaps.init()
     .pipe sass(includePaths: ['./lib']).on('error', sass.logError)
     .pipe sourcemaps.write()
-    .pipe gulp.dest './'
+    .pipe gulp.dest dest
 
 
-compileCoffee = (glob) ->
+# Compiles the passed glob with CoffeeScript.
+compileCoffee = (glob, dest = './') ->
   gulp.src glob
     .pipe sourcemaps.init()
     .pipe coffee(bare: true).on('error', gutil.log)
     .pipe sourcemaps.write()
-    .pipe gulp.dest './'
+    .pipe gulp.dest dest
 
 
+# Runs coffeelint on the passed glob.
 coffeeLint = (glob) ->
   gulp.src glob
     .pipe coffeelint()
     .pipe coffeelint.reporter()
 
 
-gulp.task 'compile:demo:pages', ->
-  gulp.src DEMO_JADE_GLOB
+# Builds test HTML pages.
+gulp.task 'compile:pages:test', ->
+  gulp.src TEST_JADE_GLOB
     .pipe jade()
-    .pipe gulp.dest './'
+    .pipe gulp.dest './test'
 
 
+# Runs coffeelint on all CoffeeScript files.
 gulp.task 'coffeelint', ->
   coffeeLint COFFEE_GLOB
 
 
-gulp.task 'coffeelint:demo', ->
-  coffeeLint DEMO_COFFEE_GLOB
+# Runs coffeelint on all test CoffeeScript files.
+gulp.task 'coffeelint:test', ->
+  coffeeLint TEST_COFFEE_GLOB
 
 
+# Compiles template Jade files.
 gulp.task 'compile:templates', ->
   gulp.src JADE_GLOB
     .pipe jade(client: true)
@@ -80,27 +98,41 @@ gulp.task 'compile:templates', ->
     .pipe gulp.dest './'
 
 
+# Compiles all CoffeeScript.
 gulp.task 'compile:coffee', ['coffeelint'], ->
   compileCoffee COFFEE_GLOB
 
 
-gulp.task 'compile:demo:coffee', ['coffeelint'], ->
-  compileCoffee DEMO_COFFEE_GLOB
+# Compiles test CoffeeScript.
+gulp.task 'compile:coffee:test', ['coffeelint'], ->
+  compileCoffee TEST_COFFEE_GLOB, './test'
 
 
-gulp.task 'compile:sass', ->
+# Copies the SASS source files from the src folder to the corresponding
+# folder at the package root.
+gulp.task 'copy:sass', ->
+  gulp.src ['./src/**/*.sass', './src/**/*.scss']
+    .pipe gulp.dest './'
+
+
+# Compiles source SASS files to CSS and places the output in the corresponding
+# folder at the package root.
+gulp.task 'compile:sass', ['copy:sass'], ->
   compileSass SASS_GLOB
 
 
-gulp.task 'compile:demo:sass', ->
-  compileSass DEMO_SASS_GLOB
+# Compiles test SASS files.
+gulp.task 'compile:sass:test', ['copy:sass'], ->
+  compileSass TEST_SASS_GLOB, './test'
 
 
+# Bundles test JavaScript files.
 gulp.task 'bundle', [
   'compile:coffee'
-  'compile:demo:coffee'
-  'compile:templates'], (cb) ->
-  glob DEMO_BUNDLE_GLOB, (err, files) ->
+  'compile:coffee:test'
+  'compile:templates'
+  ], (cb) ->
+  glob TEST_BUNDLE_GLOB, (err, files) ->
     if err
       gutil.log err
     else
@@ -118,34 +150,33 @@ gulp.task 'bundle', [
 
 
 gulp.task 'serve', ->
-  server = gls.static './', 8000
+  server = gls.static './', TEST_SERVER_PORT
   server.start()
-  # gulp.watch [
-  #   './!(node_modules)/*.css'
-  #   './!(node_modules)/*.html'
-  #   './!(node_modules)/*.js'], ->
-  #   server.notify.apply(server, arguments)
 
 
-gulp.task 'watchit', ->
+# Watches all files and runs 'build:test' whenever a change is observed.
+gulp.task 'watch', ->
   gulp.watch [
     COFFEE_GLOB
     SASS_GLOB
     JADE_GLOB
-    DEMO_JADE_GLOB
-    DEMO_COFFEE_GLOB
-    DEMO_SASS_GLOB
-  ], ['build:demo']
+    TEST_JADE_GLOB
+    TEST_COFFEE_GLOB
+    TEST_SASS_GLOB
+  ], ['build:test']
 
 
+# Cleans the package.
 gulp.task 'clean', ->
   del.sync([
     './!(src|test|lib|node_modules)/'
-    './*.html'
-    './*.js'
+    './test/**/*.html'
+    './test/**/*.js'
+    './test/**/*.css'
   ])
 
 
+# Builds the package.
 gulp.task 'build', [
   'clean'
   'compile:coffee'
@@ -154,10 +185,11 @@ gulp.task 'build', [
   ]
 
 
-gulp.task 'build:demo', [
+# Builds the package for testing.
+gulp.task 'build:test', [
   'clean'
   'compile:sass'
-  'compile:demo:sass'
-  'compile:demo:pages'
+  'compile:sass:test'
+  'compile:pages:test'
   'bundle'
   ]

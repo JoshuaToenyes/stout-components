@@ -1,4 +1,4 @@
-ProgressButton = require './index'
+ProgressButton = require './../../ProgressButton'
 
 window.button = new ProgressButton('Test Button')
 button.el = document.getElementById('demo')

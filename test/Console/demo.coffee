@@ -1,6 +1,6 @@
 _       = require 'lodash'
 Model   = require '/Users/josh/work/stout/common/model/Model'
-Console = require './index'
+Console = require './../../Console'
 
 class TestModel extends Model
   @property 'output'
