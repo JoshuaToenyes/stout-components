@@ -109,7 +109,7 @@ module.exports = class ProgressBar extends Component
       to:         {turn: 1}
       duration:   800
       easing:     'easeInOutSine'
-      step:       (s) => x.rotate(s.turn + 'turn')
+      step:       (s) -> x.rotate(s.turn + 'turn')
       finish:     => @spin() unless @_stopRotation
     }
 

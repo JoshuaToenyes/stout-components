@@ -3,12 +3,14 @@ buffer     = require 'vinyl-buffer'
 coffee     = require 'gulp-coffee'
 coffeelint = require 'gulp-coffeelint'
 del        = require 'del'
+gcb        = require 'gulp-callback'
 glob       = require 'glob'
 gls        = require 'gulp-live-server'
 gulp       = require 'gulp'
 gutil      = require 'gulp-util'
 insert     = require 'gulp-insert'
 jade       = require 'gulp-jade'
+karma      = require 'gulp-karma'
 sass       = require 'gulp-sass'
 source     = require 'vinyl-source-stream'
 sourcemaps = require 'gulp-sourcemaps'
@@ -20,7 +22,7 @@ TEST_SERVER_PORT = 8000
 
 
 # Glob pattern for Jade template files.
-JADE_GLOB = './src/**/[!_]*.jade'
+TEMPLATES_GLOB = './src/**/[!_]*.jade'
 
 
 # Glob pattern for test Jade template files.
@@ -35,6 +37,10 @@ COFFEE_GLOB = './src/**/*.coffee'
 TEST_COFFEE_GLOB = './test/**/*.coffee'
 
 
+# Files matching this pattern will be run as tests with Karma.
+KARMA_TESTS_GLOB = './test/**/*-test.js'
+
+
 # Glob pattern for source SASS files.
 SASS_GLOB = './src/!(common)/*.sass'
 
@@ -44,7 +50,7 @@ TEST_SASS_GLOB = './test/!(common)/*.sass'
 
 
 # Glob pattern for bundling test files.
-TEST_BUNDLE_GLOB = './**/demo.js'
+TEST_BUNDLE_GLOB = './test/**/*.js'
 
 
 # Compiles the passed glob with SASS.
@@ -72,6 +78,14 @@ coffeeLint = (glob) ->
     .pipe coffeelint.reporter()
 
 
+runKarma = (glob, singleRun = true) ->
+  opts =
+    configFile: 'karma.conf.coffee'
+    action: if singleRun then 'run' else 'watch'
+  gulp.src KARMA_TESTS_GLOB
+    .pipe karma(opts)
+
+
 # Builds test HTML pages.
 gulp.task 'compile:pages:test', ->
   gulp.src TEST_JADE_GLOB
@@ -91,7 +105,7 @@ gulp.task 'coffeelint:test', ->
 
 # Compiles template Jade files.
 gulp.task 'compile:templates', ->
-  gulp.src JADE_GLOB
+  gulp.src TEMPLATES_GLOB
     .pipe jade(client: true)
     .pipe insert.prepend 'jade = require("jade/runtime");\n'
     .pipe insert.append '\nmodule.exports = template'
@@ -127,15 +141,17 @@ gulp.task 'compile:sass:test', ['copy:sass'], ->
 
 
 # Bundles test JavaScript files.
-gulp.task 'bundle', [
+gulp.task 'bundle:test', [
   'compile:coffee'
   'compile:coffee:test'
   'compile:templates'
-  ], (cb) ->
+  ], (done) ->
   glob TEST_BUNDLE_GLOB, (err, files) ->
     if err
       gutil.log err
     else
+      i = 0
+      cb = -> if ++i is files.length then done()
       files.forEach (file) ->
         b = browserify
           entries: file
@@ -146,7 +162,7 @@ gulp.task 'bundle', [
           .pipe sourcemaps.init loadMaps: true
           .pipe sourcemaps.write()
           .pipe gulp.dest './'
-    cb()
+          .pipe gcb(cb)
 
 
 gulp.task 'serve', ->
@@ -154,16 +170,38 @@ gulp.task 'serve', ->
   server.start()
 
 
-# Watches all files and runs 'build:test' whenever a change is observed.
+gulp.task 'test', ['build:test'], ->
+  runKarma KARMA_TESTS_GLOB, true
+
+
+gulp.task 'karma', ->
+  runKarma KARMA_TESTS_GLOB, false
+
+
+# Watches files and re-compiles as needed.
 gulp.task 'watch', ->
+
+  # Watch all CoffeeScript files, when they change re-bundle the tests.
   gulp.watch [
     COFFEE_GLOB
-    SASS_GLOB
-    JADE_GLOB
-    TEST_JADE_GLOB
     TEST_COFFEE_GLOB
+    TEMPLATES_GLOB
+  ], ['bundle:test']
+
+  # Recompile SASS files when they change.
+  gulp.watch [
+    SASS_GLOB
+  ], ['compile:sass']
+
+  # Recompile test SASS files when they change.
+  gulp.watch [
     TEST_SASS_GLOB
-  ], ['build:test']
+  ], ['compile:sass:test']
+
+  # Recompile test pages when they change.
+  gulp.watch [
+    TEST_JADE_GLOB
+  ], ['compile:pages:test']
 
 
 # Cleans the package.
@@ -191,5 +229,5 @@ gulp.task 'build:test', [
   'compile:sass'
   'compile:sass:test'
   'compile:pages:test'
-  'bundle'
+  'bundle:test'
   ]

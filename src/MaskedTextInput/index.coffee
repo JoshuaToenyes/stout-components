@@ -112,7 +112,7 @@ module.exports = class MaskedTextInput extends TextInput
     loop
 
       if @mask[i] is '?'
-        if not (i > 0 and @mask[i-1] is '\\')
+        if not (i > 0 and @mask[i - 1] is '\\')
           if j is value.length
             break
           else
@@ -133,7 +133,7 @@ module.exports = class MaskedTextInput extends TextInput
         i++
 
       # If this character is a mask-literal, then add it to the output.
-      else if (i > 0 and @mask[i-1] is '\\') or @mask[i].match(/[^\w*]/)
+      else if (i > 0 and @mask[i - 1] is '\\') or @mask[i].match(/[^\w*]/)
         maskedValue += @mask[i]
         i++
 
