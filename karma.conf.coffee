@@ -14,25 +14,10 @@ module.exports = (config) ->
     frameworks: ['mocha']
 
 
-    # list of files / patterns to load in the browser
-    files: [
-      'test/**/*-test.js'
-    ]
-
-
-    # list of files to exclude
-    exclude: []
-
-
-    # preprocess matching files before serving them to the browser
-    # available preprocessors: https:#npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {}
-
-
     # test results reporter to use
     # possible values: 'dots', 'progress'
     # available reporters: https:#npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress']
+    reporters: ['mocha']
 
 
     # web server port
@@ -51,10 +36,13 @@ module.exports = (config) ->
     # enable / disable watching file and executing tests whenever any file changes
     autoWatch: true
 
+    # Wait a little while before executing the tests.
+    autoWatchBatchDelay: 500
+
 
     # start these browsers
     # available browser launchers: https:#npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Safari', 'Chrome']
+    browsers: ['Chrome']
 
 
     # Continuous Integration mode

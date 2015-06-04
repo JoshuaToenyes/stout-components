@@ -38,6 +38,7 @@
     "karma-chai-sinon": "^0.1.5",
     "karma-chrome-launcher": "^0.1.12",
     "karma-mocha": "^0.1.10",
+    "karma-mocha-reporter": "^1.0.2",
     "karma-safari-launcher": "^0.1.1",
     "mocha": "^2.2.5",
     "parse-filepath": "0.5.x",

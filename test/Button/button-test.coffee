@@ -1,10 +1,22 @@
 chai   = require 'chai'
 assert = chai.assert
+Button = require './../../Button'
 
-describe 'sample test', ->
 
-  it 'should work', ->
-    d = document.createElement 'div'
-    d.style.backgroundColor = 'black'
-    document.body.appendChild(d)
-    assert.equal(window.getComputedStyle(d).getPropertyValue('background-color'), 'rgb(0, 0, 0)')
+
+describe 'Button', ->
+
+  button = null
+  id = 'button'
+
+  beforeEach ->
+    button = new Button label: 'Test Label', id: id
+    button.parentEl = document.body
+
+  afterEach ->
+    button.destroy()
+    button = null
+
+  it 'renders to the document', ->
+    button.render()
+    assert.ok(document.getElementById(id))

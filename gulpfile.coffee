@@ -11,6 +11,7 @@ gutil      = require 'gulp-util'
 insert     = require 'gulp-insert'
 jade       = require 'gulp-jade'
 karma      = require 'gulp-karma'
+rename     = require 'gulp-rename'
 sass       = require 'gulp-sass'
 source     = require 'vinyl-source-stream'
 sourcemaps = require 'gulp-sourcemaps'
@@ -38,7 +39,7 @@ TEST_COFFEE_GLOB = './test/**/*.coffee'
 
 
 # Files matching this pattern will be run as tests with Karma.
-KARMA_TESTS_GLOB = './test/**/*-test.js'
+KARMA_TESTS_GLOB = ['./test/**/*-test-bundle.js', './test/**/*.css']
 
 
 # Glob pattern for source SASS files.
@@ -49,8 +50,9 @@ SASS_GLOB = './src/!(common)/*.sass'
 TEST_SASS_GLOB = './test/!(common)/*.sass'
 
 
-# Glob pattern for bundling test files.
-TEST_BUNDLE_GLOB = './test/**/*.js'
+# Glob pattern for bundling test files. (Bundle all .js files in the test
+# directory except already-bundled files.)
+TEST_BUNDLE_GLOB = './test/**/*[!-bundle].js'
 
 
 # Compiles the passed glob with SASS.
@@ -142,9 +144,9 @@ gulp.task 'compile:sass:test', ['copy:sass'], ->
 
 # Bundles test JavaScript files.
 gulp.task 'bundle:test', [
+  'compile:templates'
   'compile:coffee'
   'compile:coffee:test'
-  'compile:templates'
   ], (done) ->
   glob TEST_BUNDLE_GLOB, (err, files) ->
     if err
@@ -161,6 +163,7 @@ gulp.task 'bundle:test', [
           .pipe buffer()
           .pipe sourcemaps.init loadMaps: true
           .pipe sourcemaps.write()
+          .pipe rename((p) -> p.basename += '-bundle')
           .pipe gulp.dest './'
           .pipe gcb(cb)
 
