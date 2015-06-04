@@ -38,6 +38,10 @@ module.exports = class Button extends Interactive
   constructor: (init = {}) ->
     super template, null, {renderOnChange: false}, init
 
+    # Update the label in real-time if it changes.
+    @on 'change:label', (e) =>
+      @_getButton().textContent = e.data.value
+
 
   ##
   # Fills the button with the background color, making it visible.
@@ -59,6 +63,19 @@ module.exports = class Button extends Interactive
 
   hide: ->
     if @rendered then dom.removeClass @_getButton(), 'sc-fill'
+
+
+  ##
+  # Returns `true` or `false` indicating if this component is currently visible.
+  #
+  # @method isVisible
+  # @public
+
+  isVisible: =>
+    if @rendered
+      dom.hasClass @_getButton(), 'sc-fill'
+    else
+      false
 
 
   ##
