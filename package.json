@@ -26,7 +26,7 @@
     "gulp-jade": "^1.0.1",
     "gulp-karma": "0.0.4",
     "gulp-karma-runner": "^1.1.1",
-    "gulp-live-server": "0.0.17",
+    "gulp-live-server": "0.0.19",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.1",
     "gulp-sourcemaps": "^1.5.2",

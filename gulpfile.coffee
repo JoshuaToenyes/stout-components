@@ -62,10 +62,10 @@ EXAMPLE_SASS = './example/!(common)/*.sass'
 
 # Glob pattern for bundling test files. (Bundle all .js files in the test
 # directory except already-bundled files.)
-TEST_BUNDLE = './test/**/*[!-bundle].js'
+TEST_BUNDLE = './test/**/!(*-bundle).js'
 
 # Glob pattern for bundling example files.
-EXAMPLE_BUNDLE = './example/**/*[!-bundle].js'
+EXAMPLE_BUNDLE = './example/**/!(*-bundle).js'
 
 
 # --- Test Specific Globs ---
@@ -218,6 +218,8 @@ gulp.task 'bundle-examples', ['compile-coffee-examples'], (done) ->
 
 gulp.task 'serve', ->
   server = gls.static './example', TEST_SERVER_PORT
+  gulp.watch ['./example/**/*.html'], ->
+    server.notify.apply(server, arguments)
   server.start()
 
 
@@ -273,7 +275,6 @@ gulp.task 'build-src', [
 
 # Builds the package for testing.
 gulp.task 'build-tests', [
-  'compile-coffee-tests'
   'compile-sass-tests'
   'compile-pages-tests'
   'bundle-tests'
@@ -282,7 +283,6 @@ gulp.task 'build-tests', [
 
 # Builds the examples.
 gulp.task 'build-examples', [
-  'compile-coffee-examples'
   'compile-sass-examples'
   'compile-pages-examples'
   'bundle-examples'
