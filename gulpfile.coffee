@@ -18,7 +18,7 @@ rename     = require 'gulp-rename'
 sass       = require 'gulp-sass'
 source     = require 'vinyl-source-stream'
 sourcemaps = require 'gulp-sourcemaps'
-tag        = require 'gulp-tag'
+tag        = require 'gulp-tag-version'
 uglify     = require 'gulp-uglify'
 
 
@@ -136,7 +136,7 @@ bundle = (glb, done) ->
 bump = (importance) ->
   gulp.src './package.json'
     .pipe bump type: importance
-    .pipe dest ./
+    .pipe dest './'
     .pipe git.commit 'Bumped version number.'
     .pipe filter 'package.json'
     .pipe tag()
