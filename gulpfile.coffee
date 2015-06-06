@@ -18,6 +18,7 @@ rename     = require 'gulp-rename'
 sass       = require 'gulp-sass'
 source     = require 'vinyl-source-stream'
 sourcemaps = require 'gulp-sourcemaps'
+svg        = require 'svg-browserify'
 tag        = require 'gulp-tag-version'
 uglify     = require 'gulp-uglify'
 
@@ -124,6 +125,7 @@ bundle = (glb, done) ->
         b = browserify
           entries: file
           debug: true
+          transform: svg
         b.bundle()
           .pipe source file
           .pipe buffer()
@@ -230,7 +232,10 @@ gulp.task 'bundle-examples', ['compile-coffee-examples'], (done) ->
 
 gulp.task 'serve', ->
   server = gls.static './example', TEST_SERVER_PORT
-  gulp.watch ['./example/**/*.html'], ->
+  gulp.watch [
+    './example/**/*.html',
+    './example/**/*.css',
+    './example/**/*.js'], ->
     server.notify.apply(server, arguments)
   server.start()
 
@@ -266,6 +271,7 @@ gulp.task 'watch-tests', ['watch'], ->
 # Watches files with the intent of running the examples.
 gulp.task 'watch-examples', ['watch'], ->
   gulp.watch [SRC_COFFEE, EXAMPLE_COFFEE, SRC_TEMPLATES], ['build-examples']
+  gulp.watch [SRC_SASS], ['compile-sass-examples']
 
 
 # Bump the patch version, commit and tag.

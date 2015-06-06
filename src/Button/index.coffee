@@ -19,11 +19,34 @@ module.exports = class Button extends Interactive
   ##
   # The button label.
   #
+  # @type string
   # @property label
   # @public
 
   @property 'label',
     default: ''
+
+
+  ##
+  # SVG string that should be included directly on the page.
+  #
+  # @type string
+  # @property svgIcon
+  # @public
+
+  @property 'svgIcon'
+
+
+  ##
+  # Where the icon should appear relative to the icon text.
+  #
+  # @type string
+  # @property iconPosition
+  # @public
+
+  @property 'iconPosition',
+    default: 'right'
+    values: ['left', 'right', 'top', 'bottom']
 
 
   ##
@@ -37,6 +60,9 @@ module.exports = class Button extends Interactive
 
   constructor: (init = {}) ->
     super template, null, {renderOnChange: false}, init
+
+    # Add the `sc-button` class to the component container.
+    @classes.push 'sc-button'
 
     # Update the label in real-time if it changes.
     @on 'change:label', (e) =>

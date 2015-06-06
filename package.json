@@ -46,6 +46,7 @@
     "karma-safari-launcher": "^0.1.1",
     "mocha": "^2.2.5",
     "parse-filepath": "0.5.x",
+    "svg-browserify": "0.0.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "yargs": "^3.10.0"

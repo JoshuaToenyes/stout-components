@@ -16,6 +16,7 @@
     position: relative
     overflow: hidden
     +transition(transform $sc-transition-time, color $sc-transition-time)
+    +user-select(none)
 
     &.sc-fill
       color: $sc-button-fg
@@ -46,3 +47,42 @@
 
       &.sc-fill::after
         background-color: $sc-button-active-bg
+
+  .sc-button
+
+    .sc-icon
+      width: 1em
+      height: 1em
+      position: relative
+
+      &.sc-icon-right, &.sc-icon-left
+        display: inline-block
+
+      &.sc-icon-right
+        padding-left: modular-scale(-2)
+
+      &.sc-icon-left
+        padding-right: modular-scale(-2)
+
+      &.sc-icon-top, &.sc-icon-bottom
+        display: block
+        text-align: center
+
+      &.sc-icon-top
+        padding-bottom: modular-scale(-2)
+
+      &.sc-icon-bottom
+        padding-top: modular-scale(-2)
+
+    .sc-svg-icon
+      overflow: hidden
+
+      &.sc-icon-top, &.sc-icon-bottom
+        margin: 0 auto 0
+
+      svg
+        width: 100%
+        height: 100%
+
+        path, line, circle, ellipse, polyline, polygon
+          stroke: $sc-button-fg

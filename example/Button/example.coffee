@@ -1,13 +1,38 @@
 Button = require './../../Button'
+atomIcon = require './atom-icon.svg'
+demoEl = document.getElementById('demo')
 
-window.button = new Button label: 'Test Button'
-button.el = document.getElementById('demo')
 
-button.on 'click', (e) ->
-  console.log 'clicked!'
-  button.label = 'Clicked!'
+button = new Button
+  label: 'No Icon Button'
+  parentEl: demoEl
 
-button.on 'event', (e) ->
-  console.log e.name
+btop = new Button
+  label: 'Top Label'
+  parentEl: demoEl
+  svgIcon: atomIcon
+  iconPosition: 'top'
+
+bbottom = new Button
+  label: 'Bottom Label'
+  parentEl: demoEl
+  svgIcon: atomIcon
+  iconPosition: 'bottom'
+
+bleft   = new Button
+  label: 'Left Label'
+  parentEl: demoEl
+  svgIcon: atomIcon
+  iconPosition: 'left'
+
+bright  = new Button
+  label: 'Right Label'
+  parentEl: demoEl
+  svgIcon: atomIcon
+  iconPosition: 'right'
 
 button.render()
+btop.render()
+bbottom.render()
+bleft.render()
+bright.render()
