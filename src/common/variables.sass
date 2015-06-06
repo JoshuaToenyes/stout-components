@@ -2,6 +2,8 @@
 $sc-fontstack-monospaced:       "Andale Mono", Monaco, monospace
 
 $sc-transition-time:            300ms                         !default
+$sc-transition-time-fast:       $sc-transition-time / 2       !default
+$sc-transition-time-very-fast:  $sc-transition-time / 3       !default
 $sc-transition-time-slow:       2 * $sc-transition-time       !default
 $sc-transition-time-very-slow:  2 * $sc-transition-time-slow  !default
 
@@ -32,7 +34,8 @@ $sc-padding:            $sc-padding-top-bottom $sc-padding-sides  !default
 $sc-button-fg:                  $sc-color-interactive-fg          !default
 $sc-button-bg:                  $sc-color-interactive-bg          !default
 $sc-button-focus-bg:            green                             !default
-$sc-button-active-bg:           darken($sc-color-active-bg, 30%)  !default
+$sc-button-active-bg:           $sc-button-bg                     !default
+$sc-button-active-shadow:       darken($sc-color-active-bg, 30%)  !default
 $sc-button-hover-bg:            $sc-color-active-bg               !default
 $sc-button-disabled-bg:         black                             !default
 $sc-button-radius:              $sc-radius                        !default

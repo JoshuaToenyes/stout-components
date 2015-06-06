@@ -31,8 +31,13 @@ bright  = new Button
   svgIcon: atomIcon
   iconPosition: 'right'
 
+bnolabel  = new Button
+  parentEl: demoEl
+  svgIcon: atomIcon
+
 button.render()
 btop.render()
 bbottom.render()
 bleft.render()
 bright.render()
+bnolabel.render()

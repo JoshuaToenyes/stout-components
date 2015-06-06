@@ -1,7 +1,8 @@
 button.sc-fill  
-  if iconPosition == 'right' || iconPosition == 'bottom'
-    | #{label}
-  if svgIcon
-    scan.sc-icon.sc-svg-icon(class='sc-icon-#{iconPosition}')!= svgIcon 
-  if iconPosition == 'left' || iconPosition == 'top'
-    | #{label}
+  .sc-label
+    if iconPosition == 'right' || iconPosition == 'bottom'
+      | #{label}
+    if svgIcon
+      span.sc-icon.sc-svg-icon(class='sc-icon-#{iconPosition}')!= svgIcon 
+    if iconPosition == 'left' || iconPosition == 'top'
+      | #{label}

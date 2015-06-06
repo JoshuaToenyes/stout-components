@@ -1,10 +1,7 @@
-// @requires bourbon
-
-@import "./../common/variables"
-@import "./../common/exports"
-@import "./../common/classes"
 
 +exports('button')
+
+  $box-shadow-size: 0.3rem
 
   #{$all-buttons}
     @extend %fillable
@@ -15,14 +12,19 @@
     cursor: pointer
     position: relative
     overflow: hidden
-    +transition(transform $sc-transition-time, color $sc-transition-time)
+    +transition(box-shadow $sc-transition-time-fast)
     +user-select(none)
+    box-shadow: inset 0 0 $box-shadow-size transparent
+
+    .sc-label
+      +transition(transform $sc-transition-time-fast)
 
     &.sc-fill
       color: $sc-button-fg
 
       &::after
         background-color: $sc-button-bg
+        +transition(background-color $sc-transition-time)
 
       &[disabled]
         cursor: default
@@ -42,8 +44,11 @@
 
 
   #{$all-buttons-active}
+    .sc-label
+      +transform(translateY(0.05rem))
+
     &:not([disabled])
-      +transform(scale(0.97))
+      box-shadow: inset 0 0 $box-shadow-size $sc-button-active-shadow
 
       &.sc-fill::after
         background-color: $sc-button-active-bg
@@ -64,7 +69,7 @@
       &.sc-icon-left
         padding-right: modular-scale(-2)
 
-      &.sc-icon-top, &.sc-icon-bottom
+      &.sc-icon-top, &.sc-icon-bottom, &.sc-icon-center
         display: block
         text-align: center
 
@@ -75,7 +80,6 @@
         padding-top: modular-scale(-2)
 
     .sc-svg-icon
-      overflow: hidden
 
       &.sc-icon-top, &.sc-icon-bottom
         margin: 0 auto 0

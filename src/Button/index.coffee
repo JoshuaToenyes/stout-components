@@ -46,7 +46,7 @@ module.exports = class Button extends Interactive
 
   @property 'iconPosition',
     default: 'right'
-    values: ['left', 'right', 'top', 'bottom']
+    values: ['left', 'right', 'top', 'bottom', 'center']
 
 
   ##
@@ -102,6 +102,12 @@ module.exports = class Button extends Interactive
       dom.hasClass @_getButton(), 'sc-fill'
     else
       false
+
+
+
+  render: ->
+    if @label is '' then @iconPosition = 'center'
+    super()
 
 
   ##

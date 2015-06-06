@@ -204,19 +204,13 @@ gulp.task 'copy-sass-src', ->
     .pipe gulp.dest './'
 
 
-# Compiles source SASS files to CSS and places the output in the corresponding
-# folder at the package root.
-gulp.task 'compile-sass-src', ['copy-sass-src'], ->
-  compileSass SRC_SASS
-
-
 # Compiles test SASS files.
-gulp.task 'compile-sass-tests', ['compile-sass-src'], ->
+gulp.task 'compile-sass-tests', ['copy-sass-src'], ->
   compileSass TEST_SASS, './test'
 
 
 # Compiles example SASS files.
-gulp.task 'compile-sass-examples', ['compile-sass-src'], ->
+gulp.task 'compile-sass-examples', ['copy-sass-src'], ->
   compileSass EXAMPLE_SASS, './example'
 
 
@@ -254,7 +248,6 @@ gulp.task 'karma', ->
 gulp.task 'watch', ->
 
   # Recompile test SASS files when they change.
-  gulp.watch [SRC_SASS], ['compile-sass-src']
   gulp.watch [TEST_SASS], ['compile-sass-tests']
   gulp.watch [EXAMPLE_SASS], ['compile-sass-examples']
 
@@ -293,14 +286,14 @@ gulp.task 'clean', ->
     './test/**/*.html'
     './test/**/*.js'
     './test/**/*.css'
+    './example/**/*.html'
+    './example/**/*.js'
+    './example/**/*.css'
   ])
 
 
 # Builds the package.
-gulp.task 'build-src', [
-  'compile-coffee-src'
-  'compile-sass-src'
-  ]
+gulp.task 'build-src', ['compile-coffee-src', 'copy-sass-src']
 
 
 # Builds the package for testing.

@@ -1,0 +1,24 @@
+
++exports('button-group')
+
+  .sc-button-group
+    display: block
+
+    .sc-button
+      display: inline-block
+
+    button
+      border-radius: 0
+      border-left: 1px solid darken($sc-button-bg, 8%)
+
+    .sc-button:first-child button
+      border-top-left-radius: $sc-button-radius
+      border-bottom-left-radius: $sc-button-radius
+      border-left: none
+
+    .sc-button:last-child button
+      border-top-right-radius: $sc-button-radius
+      border-bottom-right-radius: $sc-button-radius
+
+    button
+      margin: 0
