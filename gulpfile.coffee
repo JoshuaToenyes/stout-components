@@ -1,9 +1,12 @@
 browserify = require 'browserify'
+bump       = require 'gulp-bump'
 buffer     = require 'vinyl-buffer'
 coffee     = require 'gulp-coffee'
 coffeelint = require 'gulp-coffeelint'
 del        = require 'del'
+filter     = require 'gulp-filter'
 gcb        = require 'gulp-callback'
+git        = require 'gulp-git'
 glob       = require 'glob'
 gls        = require 'gulp-live-server'
 gulp       = require 'gulp'
@@ -15,6 +18,7 @@ rename     = require 'gulp-rename'
 sass       = require 'gulp-sass'
 source     = require 'vinyl-source-stream'
 sourcemaps = require 'gulp-sourcemaps'
+tag        = require 'gulp-tag'
 uglify     = require 'gulp-uglify'
 
 
@@ -128,6 +132,14 @@ bundle = (glb, done) ->
           .pipe rename((p) -> p.basename += '-bundle')
           .pipe gulp.dest './'
           .pipe gcb(cb)
+
+bump = (importance) ->
+  gulp.src './package.json'
+    .pipe bump type: importance
+    .pipe dest ./
+    .pipe git.commit 'Bumped version number.'
+    .pipe filter 'package.json'
+    .pipe tag()
 
 
 # Builds test HTML pages.
@@ -254,6 +266,18 @@ gulp.task 'watch-tests', ['watch'], ->
 # Watches files with the intent of running the examples.
 gulp.task 'watch-examples', ['watch'], ->
   gulp.watch [SRC_COFFEE, EXAMPLE_COFFEE, SRC_TEMPLATES], ['build-examples']
+
+
+# Bump the patch version, commit and tag.
+gulp.task 'bump-patch', -> bump 'patch'
+
+
+# Bump the minor version, commit and tag.
+gulp.task 'bump-minor', -> bump 'minor'
+
+
+# Bump the major version, commit and tag.
+gulp.task 'bump-major', -> bump 'major'
 
 
 # Cleans the package.
