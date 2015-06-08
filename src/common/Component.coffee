@@ -1,3 +1,4 @@
+$          = require '/Users/josh/work/stout/client/$'
 dom        = require 'stout/common/utilities/dom'
 ClientView = require '/Users/josh/work/stout/client/view/ClientView'
 
@@ -68,6 +69,10 @@ module.exports = class Component extends ClientView
 
   constructor: ->
     super arguments...
+
+    # Hide and show callback timer.
+    @_timer = null
+
     @classes.push 'sc-component'
 
 
@@ -78,10 +83,22 @@ module.exports = class Component extends ClientView
   # functionality. If the component is already visible or not rendered, calling
   # this method has no effect.
   #
+  # @param {function} [cb] - Callback function executed when the component is
+  # fully visible.
+  #
   # @method show
   # @public
 
-  show: => if @rendered then dom.removeClass @_getHideTarget(), 'sc-hidden'
+  show: (cb) =>
+    if @rendered and @hidden
+      $target = $ @_getHideTarget()
+      $target.removeClass 'sc-hidden'
+      if @_timer then clearTimeout @_timer
+      @_timer = setTimeout (-> cb?.call @),
+        $target.transitionDuration 'opacity'
+    else
+      cb?.call @
+    @
 
 
   ##
@@ -91,10 +108,22 @@ module.exports = class Component extends ClientView
   # component is already hidden or not rendered calling this method has no
   # effect.
   #
+  # @param {function} [cb] - Callback function executed when the component is
+  # hidden.
+  #
   # @method hide
   # @public
 
-  hide: =>  if @rendered then dom.addClass @_getHideTarget(), 'sc-hidden'
+  hide: (cb) =>
+    if @rendered and @visible
+      $target = $ @_getHideTarget()
+      $target.addClass 'sc-hidden'
+      if @_timer then clearTimeout @_timer
+      @_timer = setTimeout (-> cb?.call @),
+        $target.transitionDuration 'opacity'
+    else
+      cb?.call @
+    @
 
 
   ##
