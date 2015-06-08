@@ -31,10 +31,23 @@
       padding: modular-scale(-3) modular-scale(-1)
       cursor: pointer
       +user-select(none)
-      +transition(box-shadow $sc-transition-time-fast)
+      +transition(box-shadow $sc-transition-time-fast, color $sc-transition-time-slow)
 
-    li:hover
+    li[disabled]
+      color: $sc-color-fg-disabled
+      cursor: default
+
+    li:not(.sc-separator):not([disabled]):hover
       background-color: $sc-color-bg
 
-    li:active
+    li:not(.sc-separator):not([disabled]):active
       box-shadow: inset 0 0 0.15rem rgba($sc-button-active-shadow, 0.2)
+
+    li.sc-separator
+      padding: 0
+      cursor: default
+
+      hr
+        border: 0
+        height: 1px
+        background-color: $border-color
