@@ -11,5 +11,9 @@ window.dd = new DropDown
   attachedEl: demoEl
   menuItems: [m1, m2, se, m3]
 
-dd.render()
-m1.disable()
+demoEl.addEventListener 'click', ->
+  if dd.isVisible()
+    dd.close()
+  else
+    dd.open()
+    m1.disable()

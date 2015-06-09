@@ -12,6 +12,7 @@
     border: 1px solid $border-color
     position: absolute
     +transform(translateY(0.5 * $triangle-size))
+    +transition(opacity $sc-transition-time)
 
     &:before
       content: ''
