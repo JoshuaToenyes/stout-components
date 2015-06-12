@@ -187,6 +187,10 @@ module.exports = class DropDown extends Interactive
       ul.appendChild li.render()
       li.on? 'click', @close
 
+    # Position the element immediate to avoid a flash of the drop-down
+    # rendered at the incorrect location.
+    @_positionEl()
+
     # Create the interval to continuously position the drop-down element.
     @_int = setInterval @_positionEl, POSITION_INTERVAL
 

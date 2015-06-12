@@ -133,33 +133,50 @@ module.exports = class Interactive extends Component
 
   render: ->
     super()
-
-    self = @
-
     b = @_getHoverTarget()
-
-    b.addEventListener 'click', (e) ->
-      self.fire 'click', e
-
-    b.addEventListener 'mousedown', (e) ->
-      self.fire 'active', e
-
-    b.addEventListener 'focus', (e) ->
-      self.fire 'focus', e
-
-    b.addEventListener 'mouseenter', (e) ->
-      clearTimeout self._hoverTimer
-      if self._state is STATE.HOVER then return
-      self._state = STATE.HOVER
-      self.fire 'hover', e
-
-    b.addEventListener 'mouseleave', (e) ->
-      self._hoverTimer = setTimeout ->
-        self._state = STATE.DEFAULT
-        self.fire 'leave', e
-      , 10
-
+    b.addEventListener 'click', @_onClick
+    b.addEventListener 'mousedown', @_onMouseDown
+    b.addEventListener 'focus', @_onFocus
+    b.addEventListener 'mouseenter', @_onMouseEnter
+    b.addEventListener 'mouseleave', @_onMouseLeave
     @el
+
+
+  destroy: ->
+    b = @_getHoverTarget()
+    b.removeEventListener 'click', @_onClick
+    b.removeEventListener 'mousedown', @_onMouseDown
+    b.removeEventListener 'focus', @_onFocus
+    b.removeEventListener 'mouseenter', @_onMouseEnter
+    b.removeEventListener 'mouseleave', @_onMouseLeave
+    super()
+
+
+  _onClick: (e) =>
+    @fire 'click', e
+
+
+  _onMouseDown: (e) =>
+    @fire 'active', e
+
+
+  _onFocus: (e) =>
+    @fire 'focus', e
+
+
+  _onMouseEnter: (e) =>
+    clearTimeout @_hoverTimer
+    if @_state is STATE.HOVER then return
+    @_state = STATE.HOVER
+    @fire 'hover', e
+
+
+  _onMouseLeave: (e) =>
+    self = @
+    @_hoverTimer = setTimeout ->
+      self._state = STATE.DEFAULT
+      self.fire 'leave', e
+    , 10
 
 
   ##
