@@ -1,6 +1,7 @@
 ##
 #
 
+$           = require '/Users/josh/work/stout/client/$'
 Foundation  = require 'stout/common/base/Foundation'
 Interactive = require '../common/Interactive'
 template    = require './template'
@@ -33,6 +34,11 @@ class MenuItem extends Interactive
   constructor: (init) ->
     super (-> @title), null, {renderOnChange: false}, init
     @tagName = 'li'
+    @_parentMenu = null
+
+    @on 'click', (e) =>
+      $(@el).addClass('sc-drop-down-flash')
+      setTimeout @_parentMenu.close, 200
 
   _getDisableTarget: -> @el
 
@@ -185,7 +191,7 @@ module.exports = class DropDown extends Interactive
     # any item is clicked.
     for li in @menuItems
       ul.appendChild li.render()
-      li.on? 'click', @close
+      li._parentMenu = @
 
     # Position the element immediate to avoid a flash of the drop-down
     # rendered at the incorrect location.
@@ -196,7 +202,7 @@ module.exports = class DropDown extends Interactive
 
     # Stop clicks from propagating up to the body so we can detect clicks
     # anywhere outside the drop-down.
-    @el.addEventListener 'click', (e) -> e.stopPropagation()
+    # @el.addEventListener 'click', (e) -> e.stopPropagation()
 
     # Return a reference to the root element.
     @el
@@ -242,9 +248,13 @@ module.exports = class DropDown extends Interactive
       # Start the hide-timer when the drop-down is rendered.
       @_hideTimer = setTimeout @close, @hideTime
 
+      for li in @menuItems
+        if li.el then $(li.el).removeClass('sc-drop-down-flash')
+
       # Listen for any click outside the drop-down (see our related
       # stopPropagation call in #render()) and close the drop-down.
-      document.body.addEventListener 'click', @close
+      # document.body.addEventListener 'click', @close
+      document.body.addEventListener 'click', @_onBodyClick
     , 0
 
     # Return a reference to `this`.
@@ -268,7 +278,7 @@ module.exports = class DropDown extends Interactive
     clearTimeout @_hideTimer
 
     # Remove the listener for clicks outside the drop-down.
-    document.body.removeEventListener 'click', @close
+    document.body.removeEventListener 'click', @_onBodyClick
 
     # Remove close listeners on the menu items.
     for li in @menuItems
@@ -281,3 +291,13 @@ module.exports = class DropDown extends Interactive
 
     # Return a reference to `this`.
     @
+
+
+  _onBodyClick: (e) =>
+    elem = e.target
+    inMenuClick = false
+    while elem
+      if elem is @el then inMenuClick = true
+      elem = elem.parentElement
+    if not inMenuClick
+      @close()
