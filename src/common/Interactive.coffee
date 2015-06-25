@@ -77,6 +77,7 @@ module.exports = class Interactive extends Component
 
     @registerEvents 'hover leave active focus'
     @_hoverTimer = null
+    @_disabled = false
     @_state = STATE.DEFAULT
 
 
@@ -87,10 +88,15 @@ module.exports = class Interactive extends Component
   # component is not yet rendered, or is not disabled calling this method has
   # no effect.
   #
+  # @returns @
+  #
   # @method enable
   # @public
 
-  enable: -> if @rendered then @_getDisableTarget().removeAttribute 'disabled'
+  enable: ->
+    @_disabled = false
+    if @rendered then @_getDisableTarget().removeAttribute 'disabled'
+    @
 
 
   ##
@@ -100,10 +106,15 @@ module.exports = class Interactive extends Component
   # component is not yet rendered, or is already disabled calling this method
   # has no effect.
   #
+  # @returns @
+  #
   # @method disable
   # @public
 
-  disable: -> if @rendered then @_getDisableTarget().setAttribute 'disabled', ''
+  disable: ->
+    @_disabled = true
+    if @rendered then @_getDisableTarget().setAttribute 'disabled', ''
+    @
 
 
   ##
@@ -113,14 +124,25 @@ module.exports = class Interactive extends Component
   # overriden by extending classes for more complex functionality. This method
   # will return `false` if the component is not rendered.
   #
-  # @method isVisible
+  # @returns {boolean} `true` if enabled, otherwise false.
+  #
+  # @method isEnabled
   # @public
 
-  isEnabled: ->
-    if @rendered
-      @_getDisableTarget().hasAttribute 'disabled'
-    else
-      false
+  isEnabled: -> not @_disabled
+
+
+  ##
+  # Returns the inverse of `isEnabled()`.
+  #
+  # @see #isEnabled()
+  #
+  # @returns {boolean} `true` if disabled, otherwise false.
+  #
+  # @method isDisabled
+  # @public
+
+  isDisabled: -> not @isEnabled()
 
 
   ##
@@ -139,9 +161,20 @@ module.exports = class Interactive extends Component
     b.addEventListener 'focus', @_onFocus
     b.addEventListener 'mouseenter', @_onMouseEnter
     b.addEventListener 'mouseleave', @_onMouseLeave
+    if @_disabled
+      @_getDisableTarget()?.setAttribute 'disabled', ''
+    else
+      @_getDisableTarget()?.removeAttribute 'disabled'
     @el
 
 
+  ##
+  # Removes all attached DOM event listeners and calls the parent `destroy()`
+  # method.
+  #
+  # @method destroy
+  # @public
+  
   destroy: ->
     b = @_getHoverTarget()
     b.removeEventListener 'click', @_onClick
@@ -152,17 +185,46 @@ module.exports = class Interactive extends Component
     super()
 
 
-  _onClick: (e) =>
-    @fire 'click', e
+  ##
+  # Called when a native click event is detected on the hover target element.
+  # If this Interactive is enabled, a corresponding `click` event is fired.
+  #
+  # @method _onClick
+  # @private
 
+  _onClick: (e) =>
+    if @enabled then @fire 'click', e
+
+
+  ##
+  # Called when a native mouse down event is detected on the hover target
+  # element. If this Interactive is enabled, a corresponding `active` event
+  # is fired.
+  #
+  # @method _onMouseDown
+  # @private
 
   _onMouseDown: (e) =>
-    @fire 'active', e
+    if @enabled then @fire 'active', e
 
+
+  ##
+  # Called when a native focus event is detected on the hover target element.
+  # If this Interactive is enabled, a corresponding `focus` event is fired.
+  #
+  # @method _onFocus
+  # @private
 
   _onFocus: (e) =>
-    @fire 'focus', e
+    if @enabled then @fire 'focus', e
 
+
+  ##
+  # Private method called when a native mouse enter event is detected. This
+  # enter event is used to trigger a corresponding `hover` event.
+  #
+  # @method _onMouseEnter
+  # @private
 
   _onMouseEnter: (e) =>
     clearTimeout @_hoverTimer
@@ -170,6 +232,14 @@ module.exports = class Interactive extends Component
     @_state = STATE.HOVER
     @fire 'hover', e
 
+
+  ##
+  # Private method called when a native mouse leave event is detected. This
+  # enter event is used to trigger a corresponding `leave` event, signalling
+  # the end of a hover.
+  #
+  # @method _onMouseLeave
+  # @private
 
   _onMouseLeave: (e) =>
     self = @
